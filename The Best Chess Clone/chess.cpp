@@ -4,7 +4,6 @@
 #include <map>
 #include <string_view>
 #include <string>
-#include <iostream>
 
 std::unordered_map<Chess::ErrorCode, std::string_view> Chess::errorMap
 {
@@ -12,23 +11,16 @@ std::unordered_map<Chess::ErrorCode, std::string_view> Chess::errorMap
 	{ErrorCode::SDL_init, "SDL Initialization Error"},
 	{ErrorCode::Window_init, "Window Initialization Error"},
 	{ErrorCode::IMG_init, "Image Initialization Error"},
+	{ErrorCode::IMG_opt, "Image Optimization Error"},
 };
 
-Chess::Chess(int windowSize, std::string_view windowName)
+Chess::Chess(int windowSize, std::string_view windowName) : m_windowSize{windowSize}
 {
-	if (!init(windowSize, windowName))
+	if (!init(windowName))
 		return;
 
 	if (!loadResources())
-		return;
-
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = windowSize;
-	rect.h = windowSize;
-	SDL_BlitScaled(m_boardImg, NULL, m_screenSurface, &rect);
-	SDL_UpdateWindowSurface(m_window);
+		return;	
 }
 
 Chess::~Chess()
@@ -43,6 +35,10 @@ Chess::~Chess()
 
 void Chess::run()
 {
+	SDL_Rect fullBoardRect{0, 0, m_windowSize, m_windowSize};
+	SDL_BlitScaled(m_boardImg, nullptr, m_screenSurface, &fullBoardRect);
+	SDL_UpdateWindowSurface(m_window);
+
 	SDL_Event event{};
 	while (true)
 	{
@@ -64,7 +60,7 @@ std::string_view Chess::getError()
 	return errorMap[m_errorCode];
 }
 
-bool Chess::init(int windowSize, std::string_view windowName)
+bool Chess::init(std::string_view windowName)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -72,7 +68,7 @@ bool Chess::init(int windowSize, std::string_view windowName)
 		return false;
 	}
 
-	m_window = SDL_CreateWindow(windowName.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowSize, windowSize, SDL_WINDOW_SHOWN);
+	m_window = SDL_CreateWindow(windowName.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_windowSize, m_windowSize, SDL_WINDOW_SHOWN);
 
 	if (!m_window)
 	{
@@ -87,24 +83,8 @@ bool Chess::init(int windowSize, std::string_view windowName)
 
 bool Chess::loadResources()
 {
-	SDL_Surface* temp = SDL_LoadBMP("res/board.bmp");
-
-	if (!temp)
-	{
-		m_errorCode = ErrorCode::IMG_init;
+	if (!loadBMP(m_boardImg, "res/board.bmp"))
 		return false;
-	}
-
-	m_boardImg = SDL_ConvertSurface(temp, m_screenSurface->format, 0);
-
-	if (!m_boardImg)
-	{
-		m_errorCode = ErrorCode::IMG_init;
-		return false;
-	}
-
-	SDL_FreeSurface(temp);
-	temp = nullptr;
 
 	const std::map<Piece::Color, std::string_view> colorMap
 	{
@@ -131,9 +111,30 @@ bool Chess::loadResources()
 			path += '_';
 			path.append(typeString);
 			path.append(".png");
-			std::cout << path << '\n';
+			//to-do: use path to load .png
 		}
-		std::cout << '\n';
+	}
+
+	return true;
+}
+
+bool Chess::loadBMP(SDL_Surface*& surfacePtr, std::string_view path)
+{
+	SDL_Surface* temp = SDL_LoadBMP(path.data());
+
+	if (!temp)
+	{
+		m_errorCode = ErrorCode::IMG_init;
+		return false;
+	}
+
+	surfacePtr = SDL_ConvertSurface(temp, m_screenSurface->format, 0);
+	SDL_FreeSurface(temp);
+
+	if (!surfacePtr)
+	{
+		m_errorCode = ErrorCode::IMG_opt;
+		return false;
 	}
 
 	return true;

@@ -25,6 +25,7 @@ class Chess
 			SDL_init,
 			Window_init,
 			IMG_init,
+			IMG_opt,
 		};
 
 		struct Piece
@@ -51,6 +52,7 @@ class Chess
 
 		static std::unordered_map<ErrorCode, std::string_view> errorMap;
 
+		const int m_windowSize{};
 		SDL_Window* m_window{ nullptr };
 		SDL_Surface* m_screenSurface{ nullptr };
 		SDL_Surface* m_boardImg{ nullptr };
@@ -58,6 +60,7 @@ class Chess
 		
 		ErrorCode m_errorCode{ ErrorCode::None };
 
-		bool init(int windowSize, std::string_view windowName);
+		bool init(std::string_view windowName);
 		bool loadResources();
+		bool loadBMP(SDL_Surface*& surfacePtr, std::string_view path);
 };

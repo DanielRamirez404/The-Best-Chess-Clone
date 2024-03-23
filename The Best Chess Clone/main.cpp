@@ -1,14 +1,15 @@
-#include "game.h"
-#include <SDL.h>
-#include <SDL_image.h>
+#include "chess.h"
 #include <iostream>
 
 int main(int, char**)
 {
 	constexpr int size{ 600 };
-	const Game game(size, "Chess");
-	if (game.hadError())
-		std::cout << game.getError() << '\n';
-	game.run();
+	Chess chess(size, "Chess");
+
+	if (chess.hadError())
+		std::cout << chess.getError() << '\n';
+	
+	chess.run();
+	
 	return 0;
 }

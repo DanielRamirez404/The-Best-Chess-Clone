@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <string_view>
 #include <unordered_map>
+#include <map>
 
 class Chess
 {
@@ -9,8 +10,7 @@ class Chess
 
 		Chess(const Chess&) = delete;
 		void operator=(const Chess&) = delete;
-		Chess(int width, int height, std::string_view name);
-		Chess(int size, std::string_view name) : Chess(size, size, name) {};
+		Chess(int windowSize, std::string_view windowName);
 		~Chess();
 
 		void run();
@@ -24,10 +24,40 @@ class Chess
 			None,
 			SDL_init,
 			Window_init,
+			IMG_init,
 		};
 
-		static std::unordered_map<Chess::ErrorCode, std::string_view> errorMap;
+		struct Piece
+		{
+			enum Color 
+			{
+				White,
+				Black,
+			};
+
+			enum Type
+			{
+				Pawn,
+				Knight,
+				Bishop,
+				Rook,
+				Queen,
+				King,
+			};
+
+			Color color;
+			Type type;
+		};
+
+		static std::unordered_map<ErrorCode, std::string_view> errorMap;
 
 		SDL_Window* m_window{ nullptr };
+		SDL_Surface* m_screenSurface{ nullptr };
+		SDL_Surface* m_boardImg{ nullptr };
+		std::map<Piece, SDL_Surface*> pieceImagesMap;
+		
 		ErrorCode m_errorCode{ ErrorCode::None };
+
+		bool init(int windowSize, std::string_view windowName);
+		bool loadResources();
 };

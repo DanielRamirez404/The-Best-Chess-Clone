@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <SDL_image.h>
 #include <string_view>
 #include <unordered_map>
 #include <map>
@@ -23,9 +24,11 @@ class Chess
 		{
 			None,
 			SDL_init,
+			SDL_IMG_init,
 			Window_init,
-			IMG_init,
-			IMG_opt,
+			Render_init,
+			IMG_load,
+			Texture_load,
 		};
 
 		struct Piece
@@ -48,19 +51,29 @@ class Chess
 
 			Color color;
 			Type type;
+
+			int getID() const;
 		};
 
-		static std::unordered_map<ErrorCode, std::string_view> errorMap;
+		struct PieceComparator
+		{
+			bool operator()(const Chess::Piece& left, const Chess::Piece& right) const;
+		};
 
+		static std::unordered_map<ErrorCode, std::string_view> m_errorMap;
+
+		const int m_squaresPerLine{ 8 };
 		const int m_windowSize{};
+		const int m_squareSize{};
+
 		SDL_Window* m_window{ nullptr };
-		SDL_Surface* m_screenSurface{ nullptr };
-		SDL_Surface* m_boardImg{ nullptr };
-		std::map<Piece, SDL_Surface*> pieceImagesMap;
+		SDL_Renderer* m_renderer{ nullptr };
+		SDL_Texture* m_boardTexture{ nullptr };
+		std::map<Piece, SDL_Texture*, PieceComparator> m_pieceTextureMap;
 		
 		ErrorCode m_errorCode{ ErrorCode::None };
 
 		bool init(std::string_view windowName);
 		bool loadResources();
-		bool loadBMP(SDL_Surface*& surfacePtr, std::string_view path);
+		bool loadTexture(SDL_Texture*& texturePtr, std::string_view path);
 };

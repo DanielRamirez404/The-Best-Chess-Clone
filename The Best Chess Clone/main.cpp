@@ -3,7 +3,7 @@
 
 int main(int, char**)
 {
-	Chess chess();
+	Chess chess{};
 
 	if (chess.hadError())
 	{

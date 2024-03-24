@@ -3,13 +3,15 @@
 
 int main(int, char**)
 {
-	constexpr int size{ 600 };
-	Chess chess(size, "Chess");
+	Chess chess();
 
 	if (chess.hadError())
+	{
 		std::cout << chess.getError() << '\n';
-	
+		return 1;
+	}
+		
 	chess.run();
-	
+
 	return 0;
 }

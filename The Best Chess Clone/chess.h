@@ -9,9 +9,7 @@ class Chess
 {
 	public:
 
-		Chess(const Chess&) = delete;
-		void operator=(const Chess&) = delete;
-		Chess(int windowSize, std::string_view windowName);
+		Chess();
 		~Chess();
 
 		void run();
@@ -62,18 +60,17 @@ class Chess
 
 		static std::unordered_map<ErrorCode, std::string_view> m_errorMap;
 
-		const int m_squaresPerLine{ 8 };
-		const int m_windowSize{};
-		const int m_squareSize{};
-
 		SDL_Window* m_window{ nullptr };
 		SDL_Renderer* m_renderer{ nullptr };
 		SDL_Texture* m_boardTexture{ nullptr };
 		std::map<Piece, SDL_Texture*, PieceComparator> m_pieceTextureMap;
 		
-		ErrorCode m_errorCode{ ErrorCode::None };
+		ErrorCode m_errorCode{};
 
-		bool init(std::string_view windowName);
-		bool loadResources();
+		Chess(const Chess&) = delete;
+		void operator=(const Chess&) = delete;
+
+		ErrorCode init();
+		ErrorCode loadResources();
 		bool loadTexture(SDL_Texture*& texturePtr, std::string_view path);
 };

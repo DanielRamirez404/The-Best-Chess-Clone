@@ -1,4 +1,5 @@
 #include "chess.h"
+#include "constants.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <unordered_map>
@@ -18,13 +19,12 @@ std::unordered_map<Chess::ErrorCode, std::string_view> Chess::m_errorMap
 	{ ErrorCode::Texture_load, "Texture Loading Error" },
 };
 
-Chess::Chess(int windowSize, std::string_view windowName) : m_windowSize{ windowSize }, m_squareSize{ m_windowSize / m_squaresPerLine }
+Chess::Chess()
 {
-	if (!init(windowName))
-		return;
+	m_errorCode = init();
 
-	if (!loadResources())
-		return;	
+	if (!hadError())
+		m_errorCode = loadResources();
 }
 
 Chess::~Chess()
@@ -53,8 +53,8 @@ void Chess::run()
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetTextureBlendMode(piece, SDL_BLENDMODE_BLEND);
 
-	SDL_Rect fullBoardRect{ 0, 0, m_windowSize, m_windowSize };
-	SDL_Rect singleSquareRect{ 0, 0, m_squareSize, m_squareSize };
+	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
+	SDL_Rect singleSquareRect{ 0, 0, Constants::squareSize, Constants::squareSize };
 
 	SDL_RenderClear(m_renderer);
 	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
@@ -82,43 +82,31 @@ std::string_view Chess::getError()
 	return m_errorMap[m_errorCode];
 }
 
-bool Chess::init(std::string_view windowName)
+Chess::ErrorCode Chess::init()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		m_errorCode = ErrorCode::SDL_init;
-		return false;
-	}
+		return ErrorCode::SDL_init;
 
 	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
-	{
-		m_errorCode = ErrorCode::SDL_IMG_init;
-		return false;
-	}
+		return ErrorCode::SDL_IMG_init;
 
-	m_window = SDL_CreateWindow(windowName.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_windowSize, m_windowSize, SDL_WINDOW_SHOWN);
+	m_window = SDL_CreateWindow(Constants::title.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Constants::windowSize, Constants::windowSize, SDL_WINDOW_SHOWN);
 
 	if (!m_window)
-	{
-		m_errorCode = ErrorCode::Window_init;
-		return false;
-	}
+		return ErrorCode::Window_init;
 
 	m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
 
 	if (!m_renderer)
-	{
-		m_errorCode = ErrorCode::Render_init;
-		return false;
-	}
+		return ErrorCode::Render_init;
 
-	return true;
+	return ErrorCode::None;
 }
 
-bool Chess::loadResources()
+Chess::ErrorCode Chess::loadResources()
 {
 	if (!loadTexture(m_boardTexture, "res/board.bmp"))
-		return false;
+		return ErrorCode::Texture_load;
 
 	const std::map<Piece::Color, std::string_view> colorMap
 	{
@@ -149,13 +137,13 @@ bool Chess::loadResources()
 			SDL_Texture* pieceImg{ nullptr };
 
 			if (!loadTexture(pieceImg, path))
-				return false;
+				return ErrorCode::Texture_load;
 				
 			m_pieceTextureMap[{ color, type }] = std::move(pieceImg);
 		}
 	}
 
-	return true;
+	return ErrorCode::None;
 }
 
 bool Chess::loadTexture(SDL_Texture*& texturePtr, std::string_view path)

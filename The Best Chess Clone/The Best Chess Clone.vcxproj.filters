@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chess.h" />
+    <ClInclude Include="constants.h" />
   </ItemGroup>
 </Project>

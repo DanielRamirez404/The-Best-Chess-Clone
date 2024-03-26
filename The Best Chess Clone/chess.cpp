@@ -1,4 +1,5 @@
 #include "chess.h"
+#include "piece.h"
 #include "constants.h"
 #include <SDL.h>
 #include <SDL_image.h>
@@ -166,14 +167,4 @@ bool Chess::loadTexture(SDL_Texture*& texturePtr, std::string_view path)
 	}
 
 	return true;
-}
-
-int Chess::Piece::getID() const
-{
-	return (color * 10) + type;
-}
-
-bool Chess::PieceComparator::operator()(const Chess::Piece& left, const Chess::Piece& right) const
-{
-	return left.getID() < right.getID();
 }

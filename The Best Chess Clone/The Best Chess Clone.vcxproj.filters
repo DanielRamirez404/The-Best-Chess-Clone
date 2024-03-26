@@ -13,9 +13,14 @@
     <ClCompile Include="chess.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="piece.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chess.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="boardMatrix.h" />
+    <ClInclude Include="piece.h" />
   </ItemGroup>
 </Project>

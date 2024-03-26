@@ -1,4 +1,5 @@
 #pragma once
+#include "piece.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string_view>
@@ -27,35 +28,6 @@ class Chess
 			Render_init,
 			IMG_load,
 			Texture_load,
-		};
-
-		struct Piece
-		{
-			enum Color 
-			{
-				White,
-				Black,
-			};
-
-			enum Type
-			{
-				Pawn,
-				Knight,
-				Bishop,
-				Rook,
-				Queen,
-				King,
-			};
-
-			Color color;
-			Type type;
-
-			int getID() const;
-		};
-
-		struct PieceComparator
-		{
-			bool operator()(const Chess::Piece& left, const Chess::Piece& right) const;
 		};
 
 		static std::unordered_map<ErrorCode, std::string_view> m_errorMap;

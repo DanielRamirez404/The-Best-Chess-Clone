@@ -18,8 +18,8 @@ struct Piece
 		King,
 	};
 
-	Color color;
-	Type type;
+	Color color{};
+	Type type{};
 	int coorX{ 0 };
 	int coorY{ 0 };
 

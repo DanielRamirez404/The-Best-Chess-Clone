@@ -49,17 +49,27 @@ Chess::~Chess()
 
 void Chess::run()
 {
-	SDL_Texture*& piece = m_pieceTextureMap[{Piece::Color::White, Piece::Type::Queen}];
-
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetTextureBlendMode(piece, SDL_BLENDMODE_BLEND);
 
 	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
-	SDL_Rect singleSquareRect{ 0, 0, Constants::squareSize, Constants::squareSize };
+	SDL_SetTextureBlendMode(m_boardTexture, SDL_BLENDMODE_BLEND);
 
 	SDL_RenderClear(m_renderer);
 	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
-	SDL_RenderCopy(m_renderer, piece, nullptr, &singleSquareRect);
+
+	for (auto& piece : m_board.getPieces())
+	{
+		SDL_Rect squareRect{ piece.coorY, piece.coorX, Constants::squareSize, Constants::squareSize };
+
+		piece.coorX = 0;
+		piece.coorY = 0;
+
+		SDL_Texture*& pieceTexture = m_pieceTextureMap[piece];
+
+		SDL_SetTextureBlendMode(pieceTexture, SDL_BLENDMODE_BLEND);
+		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
+	}
+
 	SDL_RenderPresent(m_renderer);
 
 	SDL_Event event{};

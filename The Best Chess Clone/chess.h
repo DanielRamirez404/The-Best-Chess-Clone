@@ -1,5 +1,6 @@
 #pragma once
 #include "piece.h"
+#include "board.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string_view>
@@ -38,6 +39,8 @@ class Chess
 		std::map<Piece, SDL_Texture*, PieceComparator> m_pieceTextureMap;
 		
 		ErrorCode m_errorCode{};
+
+		Board m_board{};
 
 		Chess(const Chess&) = delete;
 		void operator=(const Chess&) = delete;

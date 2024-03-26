@@ -8,4 +8,5 @@ namespace Constants
 	inline constexpr int windowSize{ 600 };
 	inline constexpr int squaresPerLine{ 8 };
 	inline constexpr int squareSize{ windowSize / squaresPerLine };
+	inline constexpr int array2dSize{ squaresPerLine * squaresPerLine };
 }

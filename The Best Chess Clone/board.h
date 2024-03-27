@@ -1,27 +1,18 @@
 #pragma once
-#include <vector>
-#include "constants.h"
+#include "boardMatrix.h"
 #include "piece.h"
+#include <vector>
 
-class Board {
+class Board
+{
+	public:
 
-private:
+		Board();
 
-	char matriz[Constants::squaresPerLine][Constants::squaresPerLine]{
-		{'R','N','B','K','Q','B','N','R'},
-		{ 'P','P','P','P','P','P','P','P' },
-		{ 'x','x','x','x','x','x','x','x' },
-		{ 'x','x','x','x','x','x','x','x' },
-		{ 'x','x','x','x','x','x','x','x' },
-		{ 'x','x','x','x','x','x','x','x' },
-		{ 'p','p','p','p','p','p','p','p' },
-		{ 'r','n','b','k','q','b','n','r' },
-	};
+		void printMatrix();
+		std::vector<Piece> getPieces();
 
-public:
+	private:
 
-	void printMatrix();
-
-	std::vector<Piece> getPieces();
-
+		BoardMatrix m_matrix{ {} };
 };

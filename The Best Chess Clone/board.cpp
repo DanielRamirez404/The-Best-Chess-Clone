@@ -1,88 +1,75 @@
-#include <iostream>
-#include "Board.h"
+#include "board.h"
 #include "piece.h"
 #include "constants.h"
+#include <iostream>
 #include <vector>
+#include <cctype>
 
-void Board::printMatrix() {
-	for (int i = 0; i < Constants::squaresPerLine; i++) {
-		for (int j = 0; j < Constants::squaresPerLine; j++) {
-			std::cout << "[ " << matriz[i][j] << " ]";
+Board::Board()
+	: m_matrix
+		{
+			{
+				'R','N','B','Q','K','B','N','R',
+				'P','P','P','P','P','P','P','P',
+				'x','x','x','x','x','x','x','x',
+				'x','x','x','x','x','x','x','x',
+				'x','x','x','x','x','x','x','x',
+				'x','x','x','x','x','x','x','x',
+				'p','p','p','p','p','p','p','p',
+				'r','n','b','q','k','b','n','r',
+			}
 		}
+{}
+
+void Board::printMatrix()
+{
+	for (int i = 0; i < Constants::squaresPerLine; ++i) 
+	{
+		for (int j = 0; j < Constants::squaresPerLine; ++j) 
+			std::cout << "[ " << m_matrix(i, j) << " ]";
+
 		std::cout << "\n";
 	}
 }
 
-std::vector<Piece> Board::getPieces() {
-	std::vector<Piece> list;
-		for (int i = 0; i < Constants::squaresPerLine; i++) {
-			for (int j = 0; j < Constants::squaresPerLine; j++) {
+std::vector<Piece> Board::getPieces() 
+{
+	std::vector<Piece> list{};
 
-				if (matriz[i][j] == 'x') {
+		for (int i = 0; i < Constants::squaresPerLine; ++i)
+		{
+			for (int j = 0; j < Constants::squaresPerLine; ++j)
+			{
+				const char letter{ m_matrix(i, j) };
+
+				if (letter == 'x')
 					continue;
+
+				Piece piece{ Piece::Color::White, Piece::Type::Pawn, i * Constants::squareSize, j * Constants::squareSize };
+
+				if (letter < 'a')
+					piece.color = Piece::Color::Black;
+
+				switch (tolower(letter))
+				{
+					case 'r':
+						piece.type = Piece::Type::Rook;
+						break;
+					case 'n':
+						piece.type = Piece::Type::Knight;
+						break;
+					case 'b':
+						piece.type = Piece::Type::Bishop;
+						break;
+					case 'k':
+						piece.type = Piece::Type::King;
+						break;
+					case 'q':
+						piece.type = Piece::Type::Queen;
+						break;
 				}
 
-				if (matriz[i][j] == 'R') {
-					Piece Pieza = { Piece::Black, Piece::Rook, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'N') {
-					Piece Pieza = { Piece::Black, Piece::Knight, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'B') {
-					Piece Pieza = { Piece::Black, Piece::Bishop, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-				
-				if (matriz[i][j] == 'K') {
-					Piece Pieza = { Piece::Black, Piece::King, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'Q') {
-					Piece Pieza = { Piece::Black, Piece::Queen, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'P') {
-					Piece Pieza = { Piece::Black, Piece::Pawn, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'r') {
-					Piece Pieza = { Piece::White, Piece::Rook, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'n') {
-					Piece Pieza = { Piece::White, Piece::Knight, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'b') {
-					Piece Pieza = { Piece::White, Piece::Bishop, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'k') {
-					Piece Pieza = { Piece::White, Piece::King, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'q') {
-					Piece Pieza = { Piece::White, Piece::Queen, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-				if (matriz[i][j] == 'p') {
-					Piece Pieza = { Piece::White, Piece::Pawn, i * Constants::squareSize, j * Constants::squareSize };
-					list.push_back(Pieza);
-				}
-
-
+				list.push_back(piece);
 			}
 		}
 	return list;

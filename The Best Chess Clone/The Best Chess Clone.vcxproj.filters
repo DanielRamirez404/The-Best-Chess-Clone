@@ -19,6 +19,9 @@
     <ClCompile Include="board.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="boardMatrix.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chess.h" />

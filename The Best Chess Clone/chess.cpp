@@ -49,28 +49,11 @@ Chess::~Chess()
 
 void Chess::run()
 {
-	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+	renderBoard();
 
-	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
-	SDL_SetTextureBlendMode(m_boardTexture, SDL_BLENDMODE_BLEND);
-
-	SDL_RenderClear(m_renderer);
-	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
-
-	for (auto& piece : m_board.getPieces())
-	{
-		SDL_Rect squareRect{ piece.coorY, piece.coorX, Constants::squareSize, Constants::squareSize };
-
-		piece.coorX = 0;
-		piece.coorY = 0;
-
-		SDL_Texture*& pieceTexture = m_pieceTextureMap[piece];
-
-		SDL_SetTextureBlendMode(pieceTexture, SDL_BLENDMODE_BLEND);
-		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
-	}
-
-	SDL_RenderPresent(m_renderer);
+	int pieceCoorX{};
+	int pieceCoorY{};
+	bool isClickToMove{ false };
 
 	SDL_Event event{};
 	while (true)
@@ -79,6 +62,25 @@ void Chess::run()
 		{
 			if (event.type == SDL_QUIT)
 				return;
+
+			if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				if (event.button.button == SDL_BUTTON_LEFT)
+				{
+					if (isClickToMove)
+					{
+						//get and convert all coordinates
+						//to matrix coordinates
+						renderBoard();
+						isClickToMove = false;
+					}
+					else
+					{
+						pieceCoorX = event.button.x;
+						pieceCoorY = event.button.y;
+					}
+				}
+			}
 		}
 	}
 }
@@ -116,6 +118,8 @@ Chess::ErrorCode Chess::init()
 
 Chess::ErrorCode Chess::loadResources()
 {
+	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
+	
 	if (!loadTexture(m_boardTexture, "res/board.bmp"))
 		return ErrorCode::Texture_load;
 
@@ -145,12 +149,13 @@ Chess::ErrorCode Chess::loadResources()
 			path.append(typeString);
 			path.append(".png");
 
-			SDL_Texture* pieceImg{ nullptr };
+			SDL_Texture* texture{ nullptr };
 
-			if (!loadTexture(pieceImg, path))
+			if (!loadTexture(texture, path))
 				return ErrorCode::Texture_load;
-				
-			m_pieceTextureMap[{ color, type }] = std::move(pieceImg);
+			
+			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+			m_pieceTextureMap[{ color, type }] = std::move(texture);
 		}
 	}
 
@@ -177,4 +182,25 @@ bool Chess::loadTexture(SDL_Texture*& texturePtr, std::string_view path)
 	}
 
 	return true;
+}
+
+void Chess::renderBoard()
+{
+	SDL_RenderClear(m_renderer);
+
+	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
+	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
+
+	for (auto& piece : m_board.getPieces())
+	{
+		SDL_Rect squareRect{ piece.coorY, piece.coorX, Constants::squareSize, Constants::squareSize };
+
+		piece.coorX = 0;
+		piece.coorY = 0;
+
+		SDL_Texture*& pieceTexture = m_pieceTextureMap[piece];
+		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
+	}
+
+	SDL_RenderPresent(m_renderer);
 }

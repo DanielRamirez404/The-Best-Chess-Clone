@@ -48,4 +48,5 @@ class Chess
 		ErrorCode init();
 		ErrorCode loadResources();
 		bool loadTexture(SDL_Texture*& texturePtr, std::string_view path);
+		void renderBoard();
 };

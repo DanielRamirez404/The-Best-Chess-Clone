@@ -2,6 +2,7 @@
 #include "piece.h"
 #include "constants.h"
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <cctype>
 
@@ -77,14 +78,34 @@ std::vector<Piece> Board::getPieces()
 
 void Board::movePieces(int i_1, int j_1, int i_2, int j_2)
 {
-	 
-		m_matrix(i_2, j_2) = m_matrix(i_1, j_1);
-		m_matrix(i_1, j_1) = 'x';
-	
+	m_matrix(i_2, j_2) = m_matrix(i_1, j_1);
+	m_matrix(i_1, j_1) = 'x';
 }
 
-bool Board::isMovable(int i, int j) {
-
+bool Board::isMovable(int i, int j)
+{
 	return m_matrix(i, j) >= 'a' && m_matrix(i, j) != 'x';
+}
 
+void Board::toMatrixCoord(int& x, int& y)
+{
+	for (int i{0}; i <= Constants::squaresPerLine; ++i)
+	{
+		if (x < i * Constants::squareSize)
+		{
+			x = i - 1;
+			break;
+		}
+	}
+
+	for (int j{ 0 }; j <= Constants::squaresPerLine; ++j)
+	{
+		if (y < j * Constants::squareSize)
+		{
+			y = j - 1;
+			break;
+		}
+	}
+
+	std::swap(x, y);
 }

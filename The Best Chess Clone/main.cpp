@@ -10,7 +10,7 @@ int main(int, char**)
 		std::cout << chess.getError() << '\n';
 		return 1;
 	}
-		
+
 	chess.run();
 
 	return 0;

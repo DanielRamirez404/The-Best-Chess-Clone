@@ -69,8 +69,14 @@ void Chess::run()
 				{
 					if (isClickToMove)
 					{
-						//get and convert all coordinates
-						//to matrix coordinates
+						int squareX{ event.button.x };
+						int squareY{ event.button.y };
+						
+						m_board.toMatrixCoord(squareX, squareY);
+
+						if ((pieceCoorX != squareX) || (pieceCoorY != squareY))
+							m_board.movePieces(pieceCoorX, pieceCoorY, squareX, squareY);
+
 						renderBoard();
 						isClickToMove = false;
 					}
@@ -78,6 +84,11 @@ void Chess::run()
 					{
 						pieceCoorX = event.button.x;
 						pieceCoorY = event.button.y;
+
+						m_board.toMatrixCoord(pieceCoorX, pieceCoorY);
+
+						if (m_board.isMovable(pieceCoorX, pieceCoorY))
+							isClickToMove = true;
 					}
 				}
 			}

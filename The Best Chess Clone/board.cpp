@@ -74,3 +74,17 @@ std::vector<Piece> Board::getPieces()
 		}
 	return list;
 }
+
+void Board::movePieces(int i_1, int j_1, int i_2, int j_2)
+{
+	 
+		m_matrix(i_2, j_2) = m_matrix(i_1, j_1);
+		m_matrix(i_1, j_1) = 'x';
+	
+}
+
+bool Board::isMovable(int i, int j) {
+
+	return m_matrix(i, j) >= 'a' && m_matrix(i, j) != 'x';
+
+}

@@ -1,14 +1,23 @@
 #pragma once
+#include <utility>
+
+struct Coordinates
+{
+	int x{};
+	int y{};
+	void toMatrixCoord();
+	void toScreenCoord();
+};
 
 struct Piece
 {
-	enum Color
+	enum class Color
 	{
 		White,
 		Black,
 	};
 
-	enum Type
+	enum class Type
 	{
 		Pawn,
 		Knight,
@@ -20,13 +29,14 @@ struct Piece
 
 	Color color{};
 	Type type{};
-	int coorX{ 0 };
-	int coorY{ 0 };
+	
+	Coordinates coordinates{0, 0};
 
-	int getID() const;
+	Piece() = default;
+	Piece(const Coordinates& myCoordinates);
 };
 
-struct PieceComparator
-{
-	bool operator()(const Piece& left, const Piece& right) const;
-};
+using PieceTraits = std::pair<Piece::Color, Piece::Type>;
+
+bool operator==(const Coordinates& coor1, const Coordinates& coor2);
+bool operator!=(const Coordinates& coor1, const Coordinates& coor2);

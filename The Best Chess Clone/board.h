@@ -9,11 +9,9 @@ class Board
 
 		Board();
 
-		void printMatrix();
 		std::vector<Piece> getPieces();
-		void movePieces(int i_1, int j_1, int i_2, int j_2);
-		bool isMovable(int i, int j);
-		void toMatrixCoord(int& x, int& y);
+		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
+		bool isMovable(const Coordinates& coordinates);
 
 	private:
 

@@ -22,17 +22,6 @@ Board::Board()
 		}
 {}
 
-void Board::printMatrix()
-{
-	for (int i = 0; i < Constants::squaresPerLine; ++i) 
-	{
-		for (int j = 0; j < Constants::squaresPerLine; ++j) 
-			std::cout << "[ " << m_matrix(i, j) << " ]";
-
-		std::cout << "\n";
-	}
-}
-
 std::vector<Piece> Board::getPieces() 
 {
 	std::vector<Piece> list{};
@@ -46,13 +35,15 @@ std::vector<Piece> Board::getPieces()
 				if (letter == 'x')
 					continue;
 
-				Piece piece{ Piece::Color::White, Piece::Type::Pawn, i * Constants::squareSize, j * Constants::squareSize };
+				Piece piece{ { i, j } };
 
-				if (letter < 'a')
-					piece.color = Piece::Color::Black;
+				piece.color = (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
 
 				switch (tolower(letter))
 				{
+					case 'p':
+						piece.type = Piece::Type::Pawn;
+						break;
 					case 'r':
 						piece.type = Piece::Type::Rook;
 						break;
@@ -73,39 +64,18 @@ std::vector<Piece> Board::getPieces()
 				list.push_back(piece);
 			}
 		}
+
 	return list;
 }
 
-void Board::movePieces(int i_1, int j_1, int i_2, int j_2)
+void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates)
 {
-	m_matrix(i_2, j_2) = m_matrix(i_1, j_1);
-	m_matrix(i_1, j_1) = 'x';
+	m_matrix(newCoordinates.x, newCoordinates.y) = m_matrix(oldCoordinates.x, oldCoordinates.y);
+	m_matrix(oldCoordinates.x, oldCoordinates.y) = 'x';
 }
 
-bool Board::isMovable(int i, int j)
+bool Board::isMovable(const Coordinates& coordinates)
 {
-	return m_matrix(i, j) >= 'a' && m_matrix(i, j) != 'x';
-}
-
-void Board::toMatrixCoord(int& x, int& y)
-{
-	for (int i{0}; i <= Constants::squaresPerLine; ++i)
-	{
-		if (x < i * Constants::squareSize)
-		{
-			x = i - 1;
-			break;
-		}
-	}
-
-	for (int j{ 0 }; j <= Constants::squaresPerLine; ++j)
-	{
-		if (y < j * Constants::squareSize)
-		{
-			y = j - 1;
-			break;
-		}
-	}
-
-	std::swap(x, y);
+	const char squareChar{ m_matrix(coordinates.x, coordinates.y) };
+	return squareChar >= 'a' && squareChar != 'x';
 }

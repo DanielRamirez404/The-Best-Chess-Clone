@@ -36,7 +36,7 @@ class Chess
 		SDL_Window* m_window{ nullptr };
 		SDL_Renderer* m_renderer{ nullptr };
 		SDL_Texture* m_boardTexture{ nullptr };
-		std::map<Piece, SDL_Texture*, PieceComparator> m_pieceTextureMap;
+		std::map<PieceTraits, SDL_Texture*> m_pieceTextureMap;
 		
 		ErrorCode m_errorCode{};
 

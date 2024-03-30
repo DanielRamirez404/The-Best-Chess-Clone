@@ -51,8 +51,7 @@ void Chess::run()
 {
 	renderBoard();
 
-	int pieceCoorX{};
-	int pieceCoorY{};
+	Coordinates oldCoordinates{};
 	bool isClickToMove{ false };
 
 	SDL_Event event{};
@@ -69,25 +68,22 @@ void Chess::run()
 				{
 					if (isClickToMove)
 					{
-						int squareX{ event.button.x };
-						int squareY{ event.button.y };
+						Coordinates newCoordinates{ event.button.x, event.button.y };
 						
-						m_board.toMatrixCoord(squareX, squareY);
+						newCoordinates.toMatrixCoord();
 
-						if ((pieceCoorX != squareX) || (pieceCoorY != squareY))
-							m_board.movePieces(pieceCoorX, pieceCoorY, squareX, squareY);
+						if (oldCoordinates != newCoordinates)
+							m_board.movePieces(oldCoordinates, newCoordinates);
 
 						renderBoard();
 						isClickToMove = false;
 					}
 					else
 					{
-						pieceCoorX = event.button.x;
-						pieceCoorY = event.button.y;
+						oldCoordinates = { event.button.x, event.button.y };
+						oldCoordinates.toMatrixCoord();
 
-						m_board.toMatrixCoord(pieceCoorX, pieceCoorY);
-
-						if (m_board.isMovable(pieceCoorX, pieceCoorY))
+						if (m_board.isMovable(oldCoordinates))
 							isClickToMove = true;
 					}
 				}
@@ -166,7 +162,7 @@ Chess::ErrorCode Chess::loadResources()
 				return ErrorCode::Texture_load;
 			
 			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-			m_pieceTextureMap[{ color, type }] = std::move(texture);
+			m_pieceTextureMap[ { color, type } ] = std::move(texture);
 		}
 	}
 
@@ -204,12 +200,9 @@ void Chess::renderBoard()
 
 	for (auto& piece : m_board.getPieces())
 	{
-		SDL_Rect squareRect{ piece.coorY, piece.coorX, Constants::squareSize, Constants::squareSize };
-
-		piece.coorX = 0;
-		piece.coorY = 0;
-
-		SDL_Texture*& pieceTexture = m_pieceTextureMap[piece];
+		piece.coordinates.toScreenCoord();
+		SDL_Rect squareRect{ piece.coordinates.x, piece.coordinates.y, Constants::squareSize, Constants::squareSize };
+		SDL_Texture*& pieceTexture{ m_pieceTextureMap[ { piece.color, piece.type } ] };
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
 

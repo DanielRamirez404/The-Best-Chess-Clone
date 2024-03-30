@@ -1,11 +1,46 @@
 #include "piece.h"
+#include "constants.h"
+#include <algorithm>
 
-int Piece::getID() const
+Piece::Piece(const Coordinates& myCoordinates) : coordinates{ myCoordinates } {}
+
+void Coordinates::toScreenCoord()
 {
-	return (color * 10) + type;
+	x *= Constants::squareSize;
+	y *= Constants::squareSize;
+
+	std::swap(x, y);
 }
 
-bool PieceComparator::operator()(const Piece& left, const Piece& right) const
+void Coordinates::toMatrixCoord()
 {
-	return left.getID() < right.getID();
+	for (int i{ 0 }; i <= Constants::squaresPerLine; ++i)
+	{
+		if (x < i * Constants::squareSize)
+		{
+			x = i - 1;
+			break;
+		}
+	}
+
+	for (int j{ 0 }; j <= Constants::squaresPerLine; ++j)
+	{
+		if (y < j * Constants::squareSize)
+		{
+			y = j - 1;
+			break;
+		}
+	}
+
+	std::swap(x, y);
+}
+
+bool operator==(const Coordinates& coor1, const Coordinates& coor2)
+{
+	return coor1.x == coor1.y && coor2.x == coor2.y;
+}
+
+bool operator!=(const Coordinates& coor1, const Coordinates& coor2)
+{
+	return !(coor1 == coor2);
 }

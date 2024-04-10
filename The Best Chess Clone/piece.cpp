@@ -37,7 +37,7 @@ void Coordinates::toMatrixCoord()
 
 bool operator==(const Coordinates& coor1, const Coordinates& coor2)
 {
-	return coor1.x == coor1.y && coor2.x == coor2.y;
+	return coor1.x == coor2.x && coor1.y == coor2.y;
 }
 
 bool operator!=(const Coordinates& coor1, const Coordinates& coor2)

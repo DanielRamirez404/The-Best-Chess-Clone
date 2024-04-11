@@ -24,46 +24,48 @@ Board::Board()
 	m_whitePieces.reserve(Constants::piecesPerColor);
 	m_blackPieces.reserve(Constants::piecesPerColor);
 	
-	for (int i = 0; i < Constants::squaresPerLine; i++) {
-		for (int j = 0; j < Constants::squaresPerLine; j++) {
-			if (m_matrix(i, j) == 'x') {
+	for (int i = 0; i < Constants::squaresPerLine; i++)
+	{
+		for (int j = 0; j < Constants::squaresPerLine; j++)
+		{
+			const char letter{ m_matrix(i, j) };
+
+			if (letter == 'x')
 				continue;
-			}
 
-			Piece piece{ {i,j} };
-
-			switch (tolower(m_matrix(i, j)))
-			{
-			case 'p':
-				piece.type = Piece::Type::Pawn;
-				break;
-			case 'r':
-				piece.type = Piece::Type::Rook;
-				break;
-			case 'n':
-				piece.type = Piece::Type::Knight;
-				break;
-			case 'b':
-				piece.type = Piece::Type::Bishop;
-				break;
-			case 'k':
-				piece.type = Piece::Type::King;
-				break;
-			case 'q':
-				piece.type = Piece::Type::Queen;
-				break;
-			}
-
-			if (m_matrix(i, j) < 'a') {
-				piece.color = Piece::Color::Black;
-				m_blackPieces.push_back(piece);
-			}
-			else {
-				piece.color = Piece::Color::White;
-				m_whitePieces.push_back(piece);
-			}
+			std::vector<Piece>& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+			list.push_back( { { i, j }, getColor(letter), getType(letter) } );
 		}
 	}
+}
+
+Piece::Type Board::getType(char letter)
+{
+	switch (tolower(letter))
+	{
+		case 'r':
+			return Piece::Type::Rook;
+			break;
+		case 'n':
+			return Piece::Type::Knight;
+			break;
+		case 'b':
+			return Piece::Type::Bishop;
+			break;
+		case 'k':
+			return Piece::Type::King;
+			break;
+		case 'q':
+			return Piece::Type::Queen;
+			break;
+	}
+
+	return Piece::Type::Pawn;
+}
+
+Piece::Color Board::getColor(char letter)
+{
+	return (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
 }
 
 std::vector<Piece> Board::getPieces() 
@@ -79,33 +81,7 @@ std::vector<Piece> Board::getPieces()
 				if (letter == 'x')
 					continue;
 
-				Piece piece{ { i, j } };
-
-				piece.color = (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
-
-				switch (tolower(letter))
-				{
-					case 'p':
-						piece.type = Piece::Type::Pawn;
-						break;
-					case 'r':
-						piece.type = Piece::Type::Rook;
-						break;
-					case 'n':
-						piece.type = Piece::Type::Knight;
-						break;
-					case 'b':
-						piece.type = Piece::Type::Bishop;
-						break;
-					case 'k':
-						piece.type = Piece::Type::King;
-						break;
-					case 'q':
-						piece.type = Piece::Type::Queen;
-						break;
-				}
-
-				list.push_back(piece);
+				list.push_back( { { i, j }, getColor(letter), getType(letter) } );
 			}
 		}
 
@@ -116,29 +92,16 @@ void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& new
 {
 	m_matrix(newCoordinates.x, newCoordinates.y) = m_matrix(oldCoordinates.x, oldCoordinates.y);
 	m_matrix(oldCoordinates.x, oldCoordinates.y) = 'x';
-	Piece::Color color = (m_matrix(newCoordinates.x, newCoordinates.y) < 'a') ? Piece::Color::Black : Piece::Color::White;
-	if (color == Piece::Color::Black) {
-		for (auto& piece : m_blackPieces) {
-			if (piece.coordinates == oldCoordinates) {
-				piece.coordinates = newCoordinates;
-				break;
-			}
-		}
-	}
-	else {
-		for (auto& piece : m_whitePieces) { 
-			if (piece.coordinates == oldCoordinates) {
-				piece.coordinates = newCoordinates;
-				break;
-			}
-		}
-	}	
+
+	const char letter{ m_matrix(oldCoordinates.x, oldCoordinates.y) };
+	std::vector<Piece>& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+	std::find_if(list.begin(), list.end(), [&](const Piece& piece) { return piece.coordinates == oldCoordinates; })->coordinates = newCoordinates;
 }
 
 bool Board::isMovable(const Coordinates& coordinates)
 {
-	const char squareChar{ m_matrix(coordinates.x, coordinates.y) };
-	return squareChar >= 'a' && squareChar != 'x';
+	const char letter{ m_matrix(coordinates.x, coordinates.y) };
+	return letter != 'x' && getColor(letter) == Piece::Color::White;
 }
 
 bool Board::isKingChecked(Piece::Color color)

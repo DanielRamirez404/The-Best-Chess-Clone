@@ -2,7 +2,8 @@
 #include "constants.h"
 #include <algorithm>
 
-Piece::Piece(const Coordinates& myCoordinates) : coordinates{ myCoordinates } {}
+Piece::Piece(const Coordinates& myCoordinates, Color myColor, Type myType)
+	: coordinates{ myCoordinates }, color{ myColor }, type{ myType } {}
 
 void Coordinates::toScreenCoord()
 {

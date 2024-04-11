@@ -10,11 +10,9 @@ class Board
 		Board();
 
 		std::vector<Piece> getPieces();
-
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		bool isMovable(const Coordinates& coordinates);
 		bool isKingChecked(Piece::Color color);
-
 
 	private:
 
@@ -22,5 +20,7 @@ class Board
 		std::vector<Piece> m_whitePieces{};
 		std::vector<Piece> m_blackPieces{};
 
+		Piece::Type getType(char letter);
+		Piece::Color getColor(char letter);
 };
 

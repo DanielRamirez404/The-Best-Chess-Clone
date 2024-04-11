@@ -33,7 +33,7 @@ struct Piece
 	Coordinates coordinates{0, 0};
 
 	Piece() = default;
-	Piece(const Coordinates& myCoordinates);
+	Piece(const Coordinates& myCoordinates, Color myColor, Type myType);
 };
 
 using PieceTraits = std::pair<Piece::Color, Piece::Type>;

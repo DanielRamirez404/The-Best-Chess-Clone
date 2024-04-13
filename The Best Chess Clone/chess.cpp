@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <string_view>
 #include <string>
+#include <vector>
 
 std::unordered_map<Chess::ErrorCode, std::string_view> Chess::m_errorMap
 {
@@ -84,7 +85,10 @@ void Chess::run()
 						oldCoordinates.toMatrixCoord();
 
 						if (m_board.isMovable(oldCoordinates))
+						{
 							isClickToMove = true;
+							renderBoard(m_board.getAttacks(m_board.getPiece(oldCoordinates)));
+						}
 					}
 				}
 			}
@@ -203,6 +207,32 @@ void Chess::renderBoard()
 		piece.coordinates.toScreenCoord();
 		SDL_Rect squareRect{ piece.coordinates.x, piece.coordinates.y, Constants::squareSize, Constants::squareSize };
 		SDL_Texture*& pieceTexture{ m_pieceTextureMap[ { piece.color, piece.type } ] };
+		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
+	}
+
+	SDL_RenderPresent(m_renderer);
+}
+
+void Chess::renderBoard(std::vector<Coordinates>&& attacks)
+{
+	SDL_RenderClear(m_renderer);
+	SDL_SetRenderDrawColor(m_renderer, 0, 255, 255, 150);
+
+	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
+	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
+
+	for (auto& attack : attacks)
+	{
+		attack.toScreenCoord();
+		SDL_Rect squareRect{ attack.x, attack.y, Constants::squareSize, Constants::squareSize };
+		SDL_RenderFillRect(m_renderer, &squareRect);
+	}
+
+	for (auto& piece : m_board.getPieces())
+	{
+		piece.coordinates.toScreenCoord();
+		SDL_Rect squareRect{ piece.coordinates.x, piece.coordinates.y, Constants::squareSize, Constants::squareSize };
+		SDL_Texture*& pieceTexture{ m_pieceTextureMap[{ piece.color, piece.type }] };
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
 

@@ -6,6 +6,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <map>
+#include <vector>
 
 class Chess
 {
@@ -49,4 +50,5 @@ class Chess
 		ErrorCode loadResources();
 		bool loadTexture(SDL_Texture*& texturePtr, std::string_view path);
 		void renderBoard();
+		void renderBoard(std::vector<Coordinates>&& attacks);
 };

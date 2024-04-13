@@ -1,5 +1,6 @@
 #pragma once
 #include "constants.h"
+#include "piece.h"
 #include <array>
 
 class BoardMatrix
@@ -13,6 +14,8 @@ class BoardMatrix
 		
 		char& operator()(int row, int column);
 		const char& operator()(int row, int column) const;
+		char& operator()(const Coordinates& coordinates);
+		const char& operator()(const Coordinates& coordinates) const;
 
 	private:
 		

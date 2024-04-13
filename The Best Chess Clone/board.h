@@ -12,7 +12,13 @@ class Board
 		std::vector<Piece> getPieces();
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		bool isMovable(const Coordinates& coordinates);
+		bool isKingMated(Piece::Color color);
 		bool isKingChecked(Piece::Color color);
+
+
+		Piece getPiece(const Coordinates& coordinates);
+
+		std::vector<Coordinates> getAttacks(const Piece& piece);
 
 	private:
 
@@ -20,7 +26,13 @@ class Board
 		std::vector<Piece> m_whitePieces{};
 		std::vector<Piece> m_blackPieces{};
 
+		bool isOutOfBounds(const Coordinates& coordinates);
+
 		Piece::Type getType(char letter);
 		Piece::Color getColor(char letter);
+
+		bool isPinned(const Piece& piece);
+		std::vector<Coordinates> getMoves(const Piece& piece);
+		
 };
 

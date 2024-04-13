@@ -7,6 +7,15 @@ struct Coordinates
 	int y{};
 	void toMatrixCoord();
 	void toScreenCoord();
+	bool operator==(const Coordinates& coordinates) const;
+	bool operator!=(const Coordinates& coordinates) const;
+	bool operator>(const Coordinates& coordinates) const;
+	bool operator<(const Coordinates& coordinates) const;
+	bool operator>=(const Coordinates& coordinates) const;
+	bool operator<=(const Coordinates& coordinates) const;
+	Coordinates operator+(const Coordinates& coordinates) const;
+	Coordinates operator-(const Coordinates& coordinates) const;
+	Coordinates operator*(const Coordinates& coordinates) const;
 };
 
 struct Piece
@@ -37,6 +46,3 @@ struct Piece
 };
 
 using PieceTraits = std::pair<Piece::Color, Piece::Type>;
-
-bool operator==(const Coordinates& coor1, const Coordinates& coor2);
-bool operator!=(const Coordinates& coor1, const Coordinates& coor2);

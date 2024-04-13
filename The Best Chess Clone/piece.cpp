@@ -36,12 +36,47 @@ void Coordinates::toMatrixCoord()
 	std::swap(x, y);
 }
 
-bool operator==(const Coordinates& coor1, const Coordinates& coor2)
+bool Coordinates::operator==(const Coordinates& coordinates) const
 {
-	return coor1.x == coor2.x && coor1.y == coor2.y;
+	return x == coordinates.x && y == coordinates.y;
 }
 
-bool operator!=(const Coordinates& coor1, const Coordinates& coor2)
+bool Coordinates::operator!=(const Coordinates& coordinates) const
 {
-	return !(coor1 == coor2);
+	return !operator==(coordinates);
+}
+
+bool Coordinates::operator>(const Coordinates& coordinates) const
+{
+	return x > coordinates.x || y > coordinates.y;
+}
+
+bool Coordinates::operator<(const Coordinates& coordinates) const
+{
+	return x < coordinates.x || y < coordinates.y;
+}
+
+bool Coordinates::operator>=(const Coordinates& coordinates) const
+{
+	return operator>(coordinates) || operator==(coordinates);
+}
+
+bool Coordinates::operator<=(const Coordinates& coordinates) const
+{
+	return operator<(coordinates) || operator==(coordinates);
+}
+
+Coordinates Coordinates::operator+(const Coordinates& coordinates) const
+{
+	return { x + coordinates.x, y + coordinates.y };
+}
+
+Coordinates Coordinates::operator-(const Coordinates& coordinates) const
+{
+	return { x - coordinates.x, y - coordinates.y };
+}
+
+Coordinates Coordinates::operator*(const Coordinates& coordinates) const
+{
+	return { x * coordinates.x, y * coordinates.y };
 }

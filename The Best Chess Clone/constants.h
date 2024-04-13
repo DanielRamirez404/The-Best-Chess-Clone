@@ -1,5 +1,4 @@
 #pragma once
-#include <SDL.h>
 #include <string_view>
 
 namespace Constants

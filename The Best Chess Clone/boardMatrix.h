@@ -1,6 +1,7 @@
 #pragma once
 #include "constants.h"
 #include "piece.h"
+#include "coordinates.h"
 #include <array>
 
 class BoardMatrix

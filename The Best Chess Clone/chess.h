@@ -1,5 +1,6 @@
 #pragma once
 #include "piece.h"
+#include "coordinates.h"
 #include "board.h"
 #include <SDL.h>
 #include <SDL_image.h>

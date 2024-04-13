@@ -148,6 +148,7 @@
     <ClCompile Include="board.cpp" />
     <ClCompile Include="boardMatrix.cpp" />
     <ClCompile Include="chess.cpp" />
+    <ClCompile Include="coordinates.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="piece.cpp" />
   </ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="boardMatrix.h" />
     <ClInclude Include="chess.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="coordinates.h" />
     <ClInclude Include="piece.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

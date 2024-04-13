@@ -1,5 +1,6 @@
 #include "chess.h"
 #include "piece.h"
+#include "coordinates.h"
 #include "constants.h"
 #include <SDL.h>
 #include <SDL_image.h>

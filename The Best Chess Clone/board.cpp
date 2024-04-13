@@ -1,5 +1,6 @@
 #include "board.h"
 #include "piece.h"
+#include "coordinates.h"
 #include "constants.h"
 #include <iostream>
 #include <algorithm>
@@ -275,5 +276,4 @@ bool Board::isKingChecked(Piece::Color color)
 	}
 
 	return true;
-
 }

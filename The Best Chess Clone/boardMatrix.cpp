@@ -1,4 +1,5 @@
 #include "boardMatrix.h"
+#include "coordinates.h"
 #include <array>
 #include <utility>
 

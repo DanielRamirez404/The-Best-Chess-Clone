@@ -22,6 +22,9 @@
     <ClCompile Include="boardMatrix.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="coordinates.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chess.h" />
@@ -29,5 +32,6 @@
     <ClInclude Include="boardMatrix.h" />
     <ClInclude Include="piece.h" />
     <ClInclude Include="board.h" />
+    <ClInclude Include="coordinates.h" />
   </ItemGroup>
 </Project>

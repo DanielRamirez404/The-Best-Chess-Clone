@@ -1,6 +1,7 @@
 #pragma once
 #include "boardMatrix.h"
 #include "piece.h"
+#include "coordinates.h"
 #include <vector>
 
 class Board
@@ -36,3 +37,7 @@ class Board
 		
 };
 
+/*
+	todo: static check if it's out of bounds
+
+*/

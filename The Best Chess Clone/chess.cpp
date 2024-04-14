@@ -88,7 +88,8 @@ void Chess::run()
 						if (m_board.isMovable(oldCoordinates))
 						{
 							isClickToMove = true;
-							renderBoard(m_board.getAttacks(m_board.getPiece(oldCoordinates)));
+							auto attacks{ m_board.getAttacks(m_board.getPiece(oldCoordinates)) };
+							renderBoard(attacks);
 						}
 					}
 				}
@@ -203,18 +204,18 @@ void Chess::renderBoard()
 	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
 	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
 
-	for (auto& piece : m_board.getPieces())
+	for (std::unique_ptr<Piece>& piece : m_board.getPieces())
 	{
-		piece.coordinates.toScreenCoord();
-		SDL_Rect squareRect{ piece.coordinates.x, piece.coordinates.y, Constants::squareSize, Constants::squareSize };
-		SDL_Texture*& pieceTexture{ m_pieceTextureMap[ { piece.color, piece.type } ] };
+		piece->getCoordinates().toScreenCoord();
+		SDL_Rect squareRect{ piece->getCoordinates().x, piece->getCoordinates().y, Constants::squareSize, Constants::squareSize };
+		SDL_Texture*& pieceTexture{ m_pieceTextureMap[ piece->getTraits() ]};
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
 
 	SDL_RenderPresent(m_renderer);
 }
 
-void Chess::renderBoard(std::vector<Coordinates>&& attacks)
+void Chess::renderBoard(std::vector<Coordinates>& attacks)
 {
 	SDL_RenderClear(m_renderer);
 	SDL_SetRenderDrawColor(m_renderer, 0, 255, 255, 150);
@@ -231,9 +232,9 @@ void Chess::renderBoard(std::vector<Coordinates>&& attacks)
 
 	for (auto& piece : m_board.getPieces())
 	{
-		piece.coordinates.toScreenCoord();
-		SDL_Rect squareRect{ piece.coordinates.x, piece.coordinates.y, Constants::squareSize, Constants::squareSize };
-		SDL_Texture*& pieceTexture{ m_pieceTextureMap[{ piece.color, piece.type }] };
+		piece->getCoordinates().toScreenCoord();
+		SDL_Rect squareRect{ piece->getCoordinates().x, piece->getCoordinates().y, Constants::squareSize, Constants::squareSize };
+		SDL_Texture*& pieceTexture{ m_pieceTextureMap[{ piece->getColor(), piece->getType() }]};
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
 

@@ -3,6 +3,7 @@
 #include "piece.h"
 #include "coordinates.h"
 #include <vector>
+#include <memory>
 
 class Board
 {
@@ -10,31 +11,30 @@ class Board
 
 		Board();
 
-		std::vector<Piece> getPieces();
+		std::vector<std::unique_ptr<Piece>> getPieces();
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		bool isMovable(const Coordinates& coordinates);
 		bool isKingMated(Piece::Color color);
 		bool isKingChecked(Piece::Color color);
 
+		std::unique_ptr<Piece> getPiece(int i, int j);
+		std::unique_ptr<Piece> getPiece(const Coordinates& coordinates);
 
-		Piece getPiece(const Coordinates& coordinates);
-
-		std::vector<Coordinates> getAttacks(const Piece& piece);
+		std::vector<Coordinates> getAttacks(const std::unique_ptr<Piece>& piece);
 
 	private:
 
 		BoardMatrix m_matrix{ {} };
-		std::vector<Piece> m_whitePieces{};
-		std::vector<Piece> m_blackPieces{};
+		std::vector<std::unique_ptr<Piece>> m_whitePieces{};
+		std::vector<std::unique_ptr<Piece>> m_blackPieces{};
 
 		bool isOutOfBounds(const Coordinates& coordinates);
 
 		Piece::Type getType(char letter);
 		Piece::Color getColor(char letter);
 
-		bool isPinned(const Piece& piece);
-		std::vector<Coordinates> getMoves(const Piece& piece);
-		
+		//bool isPinned(const std::unique_ptr<Piece>& piece);
+		//std::vector<Coordinates> getMoves(const std::unique_ptr<Piece>& piece);
 };
 
 /*

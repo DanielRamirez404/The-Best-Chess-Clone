@@ -2,31 +2,86 @@
 #include "coordinates.h"
 #include <utility>
 
-struct Piece
+class Piece
 {
-	enum class Color
-	{
-		White,
-		Black,
-	};
+	public:
 
-	enum class Type
-	{
-		Pawn,
-		Knight,
-		Bishop,
-		Rook,
-		Queen,
-		King,
-	};
+		enum class Color
+		{
+			White,
+			Black,
+		};
 
-	Color color{};
-	Type type{};
-	
-	Coordinates coordinates{0, 0};
+		enum class Type
+		{
+			Pawn,
+			Knight,
+			Bishop,
+			Rook,
+			Queen,
+			King,
+		};
 
-	Piece() = default;
-	Piece(const Coordinates& myCoordinates, Color myColor, Type myType);
+		using Traits = std::pair<Piece::Color, Piece::Type>;
+
+		const Color& getColor() const;
+		const Coordinates& getCoordinates() const;
+		Coordinates& getCoordinates();
+		virtual Type getType() const = 0;
+		virtual Traits getTraits() const = 0;
+
+	protected:
+
+		Piece(const Coordinates& coordinates, Color color);
+
+		Color m_color{};
+		Coordinates m_coordinates{};
 };
 
-using PieceTraits = std::pair<Piece::Color, Piece::Type>;
+class Pawn : public Piece
+{
+	public:
+		Pawn(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};
+
+class Rook : public Piece
+{
+	public:
+		Rook(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};
+
+class Knight : public Piece
+{
+	public:
+		Knight(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};
+
+class Bishop : public Piece
+{
+	public:
+		Bishop(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};
+
+class Queen : public Piece
+{
+	public:
+		Queen(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};
+
+class King : public Piece
+{
+	public:
+		King(const Coordinates& coordinates, Color color);
+		Type getType() const override;
+		Traits getTraits() const override;
+};

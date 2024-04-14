@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 #include <cctype>
+#include <memory>
 
 Board::Board()
 	: m_matrix
@@ -36,8 +37,9 @@ Board::Board()
 			if (letter == 'x')
 				continue;
 
-			std::vector<Piece>& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
-			list.push_back( { { i, j }, getColor(letter), getType(letter) } );
+			auto& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+
+			list.push_back(getPiece({ i, j }));
 		}
 	}
 }
@@ -71,22 +73,22 @@ Piece::Color Board::getColor(char letter)
 	return (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
 }
 
-std::vector<Piece> Board::getPieces() 
+std::vector<std::unique_ptr<Piece>> Board::getPieces()
 {
-	std::vector<Piece> list{};
+	std::vector<std::unique_ptr<Piece>> list{};
 
-		for (int i = 0; i < Constants::squaresPerLine; ++i)
+	for (int i = 0; i < Constants::squaresPerLine; ++i)
+	{
+		for (int j = 0; j < Constants::squaresPerLine; ++j)
 		{
-			for (int j = 0; j < Constants::squaresPerLine; ++j)
-			{
-				const char letter{ m_matrix(i, j) };
+			if (m_matrix(i, j) == 'x')
+				continue;
+			
+			std::unique_ptr<Piece> piece{ getPiece({ i, j }) };
 
-				if (letter == 'x')
-					continue;
-
-				list.push_back( { { i, j }, getColor(letter), getType(letter) } );
-			}
+			list.push_back(std::move(piece));
 		}
+	}
 
 	return list;
 }
@@ -97,8 +99,8 @@ void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& new
 
 	if (newSquare != 'x')
 	{
-		std::vector<Piece>& list{ (getColor(newSquare) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
-		auto piece{ std::find_if(list.begin(), list.end(), [&](const Piece& piece) { return piece.coordinates == newCoordinates; }) };
+		auto& list{ (getColor(newSquare) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+		auto piece{ std::find_if(list.begin(), list.end(), [&](const std::unique_ptr<Piece>& piece) { return piece->getCoordinates() == newCoordinates; })};
 		list.erase(piece);
 	}
 
@@ -106,8 +108,8 @@ void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& new
 	m_matrix(oldCoordinates.x, oldCoordinates.y) = 'x';
 
 	const char letter{ m_matrix(oldCoordinates.x, oldCoordinates.y) };
-	std::vector<Piece>& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
-	std::find_if(list.begin(), list.end(), [&](const Piece& piece) { return piece.coordinates == oldCoordinates; })->coordinates = newCoordinates;
+	auto& list{ (getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+	(*(std::find_if(list.begin(), list.end(), [&](const std::unique_ptr<Piece>& piece) { return piece->getCoordinates() == oldCoordinates; })))->getCoordinates() = newCoordinates;
 }
 
 bool Board::isMovable(const Coordinates& coordinates)
@@ -121,27 +123,50 @@ bool Board::isOutOfBounds(const Coordinates& coordinates)
 	return coordinates < Coordinates{ 0, 0 } || coordinates > Coordinates{ Constants::squaresPerLine - 1, Constants::squaresPerLine - 1 };
 }
 
-Piece Board::getPiece(const Coordinates& coordinates)
+std::unique_ptr<Piece> Board::getPiece(const Coordinates& coordinates)
 {
 	char letter{ m_matrix(coordinates) };
-	return { coordinates, getColor(letter), getType(letter)};
+
+	switch (getType(letter))
+	{
+		case Piece::Type::Pawn:
+			return std::make_unique<Pawn>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Rook:
+			return std::make_unique<Rook>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Knight:
+			return std::make_unique<Knight>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Bishop:
+			return std::make_unique<Bishop>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Queen:
+			return std::make_unique<Queen>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::King:
+			return std::make_unique<King>(coordinates, getColor(letter));
+			break;
+	}
+
+	return nullptr;
 }
 
-std::vector<Coordinates> Board::getAttacks(const Piece& piece)
+std::vector<Coordinates> Board::getAttacks(const std::unique_ptr<Piece>& piece)
 {
 	std::vector<Coordinates> attacks{};
 
 	//todo: change the limitations to work with both sides
 	//hint: forward and backwards (static?) variables depending on the player's color
 
-	//todo: refactorize using POO and inheritance
+	//todo: refactorize using OOP and inheritance
 
-	switch (piece.type)
+	switch (piece->getType())
 	{
 		case Piece::Type::Pawn:
 		{
-			const Coordinates rightCapture{ piece.coordinates + Coordinates{ -1, 1 } };
-			const Coordinates leftCapture{ piece.coordinates + Coordinates{ -1, -1 } };
+			Coordinates rightCapture{ piece->getCoordinates() + Coordinates{-1, 1}};
+			Coordinates leftCapture{ piece->getCoordinates() + Coordinates{ -1, -1 } };
 
 			if (!isOutOfBounds(rightCapture))
 			{
@@ -169,10 +194,7 @@ std::vector<Coordinates> Board::getAttacks(const Piece& piece)
 			{
 				for (int j{ 1 }; j < Constants::squaresPerLine; ++j)
 				{
-					Coordinates current{ piece.coordinates + Coordinates{ j, j } * directions[i] };
-
-					//here, j, j should be a multiplication between the int and the coord object
-					//todo: fix that
+					Coordinates current{ piece->getCoordinates() + Coordinates{ j, j } * directions[i] };
 
 					if (isOutOfBounds(current))
 						break;
@@ -195,7 +217,7 @@ std::vector<Coordinates> Board::getAttacks(const Piece& piece)
 
 			for (size_t i{ 0 }; i < directions.size(); ++i)
 			{
-				Coordinates current{ piece.coordinates + directions[i] };
+				Coordinates current{ piece->getCoordinates() + directions[i] };
 
 				if (isOutOfBounds(current))
 					continue;
@@ -216,7 +238,7 @@ std::vector<Coordinates> Board::getAttacks(const Piece& piece)
 			{
 				for (int j{ 1 }; j < Constants::squaresPerLine; ++j)
 				{
-					Coordinates current{ piece.coordinates + Coordinates{ j, j } * directions[i] };
+					Coordinates current{ piece->getCoordinates() + Coordinates{ j, j } * directions[i] };
 
 					if (isOutOfBounds(current))
 						break;
@@ -238,7 +260,7 @@ std::vector<Coordinates> Board::getAttacks(const Piece& piece)
 			
 			for (size_t i{ 0 }; i < directions.size(); ++i)
 			{
-				Coordinates current{ piece.coordinates + directions[i] };
+				Coordinates current{ piece->getCoordinates() + directions[i] };
 
 				if (isOutOfBounds(current))
 					continue;
@@ -252,28 +274,13 @@ std::vector<Coordinates> Board::getAttacks(const Piece& piece)
 			break;
 		case Piece::Type::Queen:
 		{
-			attacks = getAttacks({ piece.coordinates, piece.color, Piece::Type::Rook });
+			attacks = getAttacks( std::make_unique<Rook>(piece->getCoordinates(), piece->getColor()) );
 
-			for (auto& attack : getAttacks({ piece.coordinates, piece.color, Piece::Type::Bishop }))
+			for (auto& attack : getAttacks( std::make_unique<Bishop>(piece->getCoordinates(), piece->getColor())) )
 				attacks.push_back(std::move(attack));
 		}
 			break;
 	}
 
 	return attacks;
-}
-
-bool Board::isKingChecked(Piece::Color color)
-{
-	const char king{ (color == Piece::Color::White) ? 'k' : 'K' };
-
-	std::vector<char> rivalPieces{ {'P', 'N', 'Q', 'R', 'B'} };
-	//To do: Tranform if it's white
-
-	for (char piece : rivalPieces)
-	{
-
-	}
-
-	return true;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "coordinates.h"
 #include <utility>
+#include <memory>
 
 class Piece
 {
@@ -24,11 +25,15 @@ class Piece
 
 		using Traits = std::pair<Piece::Color, Piece::Type>;
 
-		const Color& getColor() const;
+		Color getColor() const;
 		const Coordinates& getCoordinates() const;
 		Coordinates& getCoordinates();
 		virtual Type getType() const = 0;
 		virtual Traits getTraits() const = 0;
+		static Color getColor(char letter);
+		static Type getType(char letter);
+		static std::unique_ptr<Piece> toPiece(char letter, const Coordinates& coordinates);
+		static bool isPiece(char letter);
 
 	protected:
 

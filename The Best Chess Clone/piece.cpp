@@ -1,11 +1,13 @@
 #include "piece.h"
 #include "coordinates.h"
-#include <utility>
+#include "constants.h"
+#include <memory>
+#include <cctype>
 
 Piece::Piece(const Coordinates& coordinates, Color color)
 	: m_coordinates{ coordinates }, m_color{ color } {}
 
-const Piece::Color& Piece::getColor() const
+Piece::Color Piece::getColor() const
 {
 	return m_color;
 }
@@ -18,6 +20,67 @@ const Coordinates& Piece::getCoordinates() const
 Coordinates& Piece::getCoordinates()
 {
 	return m_coordinates;
+}
+
+Piece::Color Piece::getColor(char letter)
+{
+	return (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
+}
+
+Piece::Type Piece::getType(char letter)
+{
+	switch (tolower(letter))
+	{
+		case 'p':
+			return Piece::Type::Pawn;
+			break;
+		case 'r':
+			return Piece::Type::Rook;
+			break;
+		case 'n':
+			return Piece::Type::Knight;
+			break;
+		case 'b':
+			return Piece::Type::Bishop;
+			break;
+		case 'q':
+			return Piece::Type::Queen;
+			break;
+	}
+
+	return Piece::Type::King;
+}
+
+std::unique_ptr<Piece> Piece::toPiece(char letter, const Coordinates& coordinates)
+{
+	switch (getType(letter))
+	{
+		case Piece::Type::Pawn:
+			return std::make_unique<Pawn>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Rook:
+			return std::make_unique<Rook>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Knight:
+			return std::make_unique<Knight>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Bishop:
+			return std::make_unique<Bishop>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::Queen:
+			return std::make_unique<Queen>(coordinates, getColor(letter));
+			break;
+		case Piece::Type::King:
+			return std::make_unique<King>(coordinates, getColor(letter));
+			break;
+	}
+
+	return nullptr;
+}
+
+bool Piece::isPiece(char letter)
+{
+	return letter != 'x';
 }
 
 Piece::Type Pawn::getType() const

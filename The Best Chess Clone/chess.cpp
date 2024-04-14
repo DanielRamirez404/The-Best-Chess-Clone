@@ -88,7 +88,7 @@ void Chess::run()
 						if (m_board.isMovable(oldCoordinates))
 						{
 							isClickToMove = true;
-							auto attacks{ m_board.getAttacks(m_board.getPiece(oldCoordinates)) };
+							auto attacks{ m_board.getAttacks(Piece::toPiece(m_board.at(oldCoordinates), oldCoordinates)) };
 							renderBoard(attacks);
 						}
 					}
@@ -204,7 +204,7 @@ void Chess::renderBoard()
 	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
 	SDL_RenderCopy(m_renderer, m_boardTexture, nullptr, &fullBoardRect);
 
-	for (std::unique_ptr<Piece>& piece : m_board.getPieces())
+	for (auto& piece : m_board.getPieces())
 	{
 		piece->getCoordinates().toScreenCoord();
 		SDL_Rect squareRect{ piece->getCoordinates().x, piece->getCoordinates().y, Constants::squareSize, Constants::squareSize };

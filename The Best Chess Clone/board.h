@@ -11,7 +11,7 @@ class Board
 
 		Board();
 
-		std::vector<std::unique_ptr<Piece>> getPieces();
+		std::vector<const Piece*> getPieces();
 		char at(const Coordinates& coordinates);
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		bool isMovable(const Coordinates& coordinates);

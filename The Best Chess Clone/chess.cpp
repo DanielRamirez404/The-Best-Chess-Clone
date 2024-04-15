@@ -206,8 +206,9 @@ void Chess::renderBoard()
 
 	for (auto& piece : m_board.getPieces())
 	{
-		piece->getCoordinates().toScreenCoord();
-		SDL_Rect squareRect{ piece->getCoordinates().x, piece->getCoordinates().y, Constants::squareSize, Constants::squareSize };
+		Coordinates screenCoordinates{ piece->getCoordinates() };
+		screenCoordinates.toScreenCoord();
+		SDL_Rect squareRect{ screenCoordinates.x,screenCoordinates.y, Constants::squareSize, Constants::squareSize };
 		SDL_Texture*& pieceTexture{ m_pieceTextureMap[ piece->getTraits() ]};
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
@@ -232,8 +233,9 @@ void Chess::renderBoard(std::vector<Coordinates>& attacks)
 
 	for (auto& piece : m_board.getPieces())
 	{
-		piece->getCoordinates().toScreenCoord();
-		SDL_Rect squareRect{ piece->getCoordinates().x, piece->getCoordinates().y, Constants::squareSize, Constants::squareSize };
+		Coordinates screenCoordinates{ piece->getCoordinates() };
+		screenCoordinates.toScreenCoord();
+		SDL_Rect squareRect{ screenCoordinates.x,screenCoordinates.y, Constants::squareSize, Constants::squareSize };
 		SDL_Texture*& pieceTexture{ m_pieceTextureMap[{ piece->getColor(), piece->getType() }]};
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}

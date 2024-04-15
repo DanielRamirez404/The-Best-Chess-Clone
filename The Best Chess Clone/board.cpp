@@ -43,26 +43,19 @@ Board::Board()
 	}
 }
 
-std::vector<std::unique_ptr<Piece>> Board::getPieces()
+std::vector<const Piece*> Board::getPieces()
 {
-	std::vector<std::unique_ptr<Piece>> list{};
+	std::vector<const Piece*> pieces{};
 
-	for (int i = 0; i < Constants::squaresPerLine; ++i)
-	{
-		for (int j = 0; j < Constants::squaresPerLine; ++j)
-		{
-			const char letter{ m_matrix(i, j) };
+	pieces.reserve(m_whitePieces.size() + m_blackPieces.size());
 
-			if (!Piece::isPiece(letter))
-				continue;
+	for (const auto& piece : m_whitePieces)
+		pieces.push_back(piece.get());
 
-			std::unique_ptr<Piece> piece{ Piece::toPiece(letter, { i, j }) };
+	for (const auto& piece : m_blackPieces)
+		pieces.push_back(piece.get());
 
-			list.push_back(std::move(piece));
-		}
-	}
-
-	return list;
+	return pieces;
 }
 
 
@@ -127,7 +120,7 @@ std::vector<Coordinates> Board::getAttacks(const std::unique_ptr<Piece>& piece)
 	{
 		case Piece::Type::Pawn:
 		{
-			Coordinates rightCapture{ piece->getCoordinates() + Coordinates{-1, 1}};
+			Coordinates rightCapture{ piece->getCoordinates() + Coordinates{-1, 1} };
 			Coordinates leftCapture{ piece->getCoordinates() + Coordinates{ -1, -1 } };
 
 			if (!isOutOfBounds(rightCapture))

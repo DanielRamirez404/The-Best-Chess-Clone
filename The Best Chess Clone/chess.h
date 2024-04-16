@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>
+#include <cstdlib>
 
 class Chess
 {
@@ -42,7 +43,9 @@ class Chess
 		
 		ErrorCode m_errorCode{};
 
-		Board m_board{};
+		Board m_board{ (rand() % 2 == 0) ? Piece::Color::White : Piece::Color::Black };
+
+		Piece::Color m_playerColor{};
 
 		Chess(const Chess&) = delete;
 		void operator=(const Chess&) = delete;

@@ -9,7 +9,7 @@ class Board
 {
 	public:
 
-		Board();
+		Board(Piece::Color player);
 
 		char operator()(const Coordinates& coordinates) const;
 

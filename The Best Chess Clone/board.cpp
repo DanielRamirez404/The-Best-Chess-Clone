@@ -9,7 +9,7 @@
 #include <vector>
 #include <memory>
 
-Board::Board()
+Board::Board(Piece::Color player)
 	: m_matrix
 	{
 		{
@@ -31,11 +31,14 @@ Board::Board()
 	{
 		for (int j = 0; j < Constants::squaresPerLine; j++)
 		{
-			const char letter{ m_matrix(i, j) };
+			char& letter{ m_matrix(i, j) };
 
 			if (!Piece::isPiece(letter))
 				continue;
 
+			if (player == Piece::Color::Black) 
+				letter = (letter == toupper(letter)) ? tolower(letter) : toupper(letter);
+			
 			auto& list{ (Piece::getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
 
 			list.push_back(Piece::toPiece(letter, { i, j }));

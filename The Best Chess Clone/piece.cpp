@@ -1,8 +1,10 @@
 #include "piece.h"
 #include "coordinates.h"
 #include "constants.h"
+#include "board.h"
 #include <memory>
 #include <cctype>
+#include <vector>
 
 Piece::Piece(const Coordinates& coordinates, Color color)
 	: m_coordinates{ coordinates }, m_color{ color } {}
@@ -141,6 +143,140 @@ Piece::Traits Queen::getTraits() const
 Piece::Traits King::getTraits() const
 {
 	return { m_color, Piece::Type::King };
+}
+
+std::vector<Coordinates> Pawn::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{};
+
+	Coordinates rightCapture{ m_coordinates + Coordinates{ -1, 1 } };
+	Coordinates leftCapture{ m_coordinates + Coordinates{ -1, -1 } };
+
+	if (!Board::isOutOfBounds(rightCapture))
+	{
+		const char letter{ board(rightCapture) };
+		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			attacks.push_back(std::move(rightCapture));
+	}
+
+	if (!Board::isOutOfBounds(leftCapture))
+	{
+		const char letter{ board(leftCapture) };
+		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			attacks.push_back(std::move(leftCapture));
+	}
+	
+	return attacks;
+}
+
+std::vector<Coordinates> Rook::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{};
+
+	constexpr std::array<Coordinates, 4> directions{ { {0, 1}, {0, -1}, {1, 0}, {-1, 0} } };
+
+	for (size_t i{ 0 }; i < directions.size(); ++i)
+	{
+		for (int j{ 1 }; j < Constants::squaresPerLine; ++j)
+		{
+			Coordinates current{ m_coordinates + Coordinates{ j, j } * directions[i] };
+
+			if (Board::isOutOfBounds(current))
+				break;
+
+			char letter{ board(current) };
+
+			if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+				attacks.push_back(std::move(current));
+
+			if (letter != 'x')
+				break;
+		}
+	}
+
+	return attacks;
+}
+
+std::vector<Coordinates> Knight::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{};
+
+	constexpr std::array<Coordinates, 8> directions{ { {2, 1}, {2, -1}, {1, 2}, {-1, 2}, {-2, 1}, {-2, -1}, {1, -2}, {-1, -2} } };
+
+	for (size_t i{ 0 }; i < directions.size(); ++i)
+	{
+		Coordinates current{ m_coordinates + directions[i] };
+
+		if (Board::isOutOfBounds(current))
+			continue;
+
+		char letter{ board(current) };
+
+		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			attacks.push_back(std::move(current));
+	}
+
+	return attacks;
+}
+
+std::vector<Coordinates> Bishop::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{};
+
+	constexpr std::array<Coordinates, 4> directions{ { {1, 1}, {-1, -1}, {-1, 1}, {1, -1} } };
+
+	for (size_t i{ 0 }; i < directions.size(); ++i)
+	{
+		for (int j{ 1 }; j < Constants::squaresPerLine; ++j)
+		{
+			Coordinates current{ m_coordinates + Coordinates{ j, j } *directions[i] };
+
+			if (Board::isOutOfBounds(current))
+				break;
+
+			char letter{ board(current) };
+
+			if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+				attacks.push_back(std::move(current));
+
+			if (letter != 'x')
+				break;
+		}
+	}
+
+	return attacks;
+}
+
+std::vector<Coordinates> Queen::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{ Rook{m_coordinates, m_color }.getAttacks(board) };
+
+	for (auto& attack : Bishop{ m_coordinates, m_color }.getAttacks(board))
+		attacks.push_back(std::move(attack));
+
+	return attacks;
+}
+
+std::vector<Coordinates> King::getAttacks(const Board& board)
+{
+	std::vector<Coordinates> attacks{};
+
+	constexpr std::array<Coordinates, 8> directions{ { {0, 1}, {0, -1}, {1, 0}, {-1, 0}, { 1, 1 }, {-1, -1}, {-1, 1}, {1, -1} } };
+
+	for (size_t i{ 0 }; i < directions.size(); ++i)
+	{
+		Coordinates current{ m_coordinates + directions[i] };
+
+		if (Board::isOutOfBounds(current))
+			continue;
+
+		char letter{ board(current) };
+
+		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			attacks.push_back(std::move(current));
+	}
+
+	return attacks;
 }
 
 Pawn::Pawn(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}

@@ -88,7 +88,7 @@ void Chess::run()
 						if (m_board.isMovable(oldCoordinates))
 						{
 							isClickToMove = true;
-							auto attacks{ m_board.getAttacks(Piece::toPiece(m_board.at(oldCoordinates), oldCoordinates)) };
+							auto attacks{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getAttacks(m_board) };
 							renderBoard(attacks);
 						}
 					}

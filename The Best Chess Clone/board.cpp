@@ -2,15 +2,15 @@
 #include "piece.h"
 #include "coordinates.h"
 #include "constants.h"
-#include <iostream>
+#include <iostream>	//to debug
 #include <algorithm>
 #include <array>
 #include <utility>
 #include <vector>
 #include <memory>
 
-Board::Board(Piece::Color player)
-	: m_matrix
+Board::Board(Piece::Color playerColor)
+	: m_playerColor{ playerColor }, m_matrix
 	{
 		{
 			'R','N','B','Q','K','B','N','R',
@@ -36,7 +36,7 @@ Board::Board(Piece::Color player)
 			if (!Piece::isPiece(letter))
 				continue;
 
-			if (player == Piece::Color::Black) 
+			if (playerColor == Piece::Color::Black)
 				letter = (letter == toupper(letter)) ? tolower(letter) : toupper(letter);
 			
 			auto& list{ (Piece::getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
@@ -69,40 +69,53 @@ char Board::operator()(const Coordinates& coordinates) const
 
 void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates)
 {
-	char& newSquare{ m_matrix(newCoordinates.x, newCoordinates.y) };
+	char& newSquare{ m_matrix(newCoordinates) };
 
 	if (Piece::isPiece(newSquare))
-	{
-		auto& list{ getListFromColor(Piece::getColor(newSquare)) };
-		auto piece
-		{ 
-			std::find_if(list.begin(), list.end(), [&](const std::unique_ptr<Piece>& piece)
-			{	 
-				return piece->getCoordinates() == newCoordinates; 
-			})
-		};
-		list.erase(piece);
-	}
+		erasePieceFromList(newCoordinates);
 
-	newSquare = m_matrix(oldCoordinates.x, oldCoordinates.y);
-	m_matrix(oldCoordinates.x, oldCoordinates.y) = 'x';
+	getPieceFromList(oldCoordinates)->getCoordinates() = newCoordinates;
 
-	const char letter{ m_matrix(oldCoordinates.x, oldCoordinates.y) };
+	newSquare = m_matrix(oldCoordinates);
+	m_matrix(oldCoordinates) = 'x';
+}
+
+void Board::erasePieceFromList(const Coordinates& coordinates)
+{
+	char letter{ m_matrix(coordinates) };
 	auto& list{ getListFromColor(Piece::getColor(letter)) };
+
 	auto piece
 	{
 		std::find_if(list.begin(), list.end(), [&](const std::unique_ptr<Piece>& piece)
 		{
-			return piece->getCoordinates() == oldCoordinates;
+			return piece->getCoordinates() == coordinates;
 		})
 	};
-	piece->get()->getCoordinates() = newCoordinates;
+
+	list.erase(piece);
 }
 
-bool Board::isMovable(const Coordinates& coordinates)
+Piece* Board::getPieceFromList(const Coordinates& coordinates)
+{
+	const char letter{ m_matrix(coordinates) };
+	const auto& list{ getListFromColor(Piece::getColor(letter)) };
+
+	auto piece
+	{
+		std::find_if(list.begin(), list.end(), [&](const std::unique_ptr<Piece>& piece)
+		{
+			return piece->getCoordinates() == coordinates;
+		})
+	};
+
+	return piece->get();
+}
+
+bool Board::isFromPlayer(const Coordinates& coordinates)
 {
 	const char letter{ m_matrix(coordinates.x, coordinates.y) };
-	return Piece::isPiece(letter) && Piece::getColor(letter) == Piece::Color::White;
+	return Piece::isPiece(letter) && Piece::getColor(letter) == m_playerColor;
 }
 
 bool Board::isOutOfBounds(const Coordinates& coordinates)

@@ -85,7 +85,7 @@ void Chess::run()
 						oldCoordinates = { event.button.x, event.button.y };
 						oldCoordinates.toMatrixCoord();
 
-						if (m_board.isMovable(oldCoordinates))
+						if (m_board.isFromPlayer(oldCoordinates))
 						{
 							isClickToMove = true;
 							auto attacks{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getAttacks(m_board) };

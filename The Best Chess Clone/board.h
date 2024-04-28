@@ -16,7 +16,7 @@ class Board
 		std::vector<const Piece*> getPieces();
 
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
-		bool isMovable(const Coordinates& coordinates);
+		bool isFromPlayer(const Coordinates& coordinates);
 		
 		//bool isKingMated(Piece::Color color);
 		//bool isKingChecked(Piece::Color color);
@@ -25,12 +25,15 @@ class Board
 
 	private:
 
+		Piece::Color m_playerColor{};
 		BoardMatrix m_matrix{ {} };
 
 		std::vector<std::unique_ptr<Piece>> m_whitePieces{};
 		std::vector<std::unique_ptr<Piece>> m_blackPieces{};
 
 		std::vector<std::unique_ptr<Piece>>& getListFromColor(Piece::Color color);
+		void erasePieceFromList(const Coordinates& coordinates);
+		Piece* getPieceFromList(const Coordinates& coordinates);
 		
 
 		//bool isPinned(const std::unique_ptr<Piece>& piece);

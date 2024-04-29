@@ -31,6 +31,7 @@ class Piece
 		Color getColor() const;
 		const Coordinates& getCoordinates() const;
 		Coordinates& getCoordinates();
+		bool isSameColorPiece(char letter) const;
 
 		virtual Type getType() const = 0;
 		virtual Traits getTraits() const = 0;

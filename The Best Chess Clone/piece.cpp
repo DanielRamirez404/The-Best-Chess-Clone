@@ -29,6 +29,11 @@ Piece::Color Piece::getColor(char letter)
 	return (letter < 'a') ? Piece::Color::Black : Piece::Color::White;
 }
 
+bool Piece::isSameColorPiece(char letter) const 
+{
+	return isPiece(letter) && m_color == getColor(letter);
+}
+
 Piece::Type Piece::getType(char letter)
 {
 	switch (tolower(letter))
@@ -155,14 +160,14 @@ std::vector<Coordinates> Pawn::getAttacks(const Board& board)
 	if (!Board::isOutOfBounds(rightCapture))
 	{
 		const char letter{ board(rightCapture) };
-		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+		if (!isSameColorPiece(letter))
 			attacks.push_back(std::move(rightCapture));
 	}
 
 	if (!Board::isOutOfBounds(leftCapture))
 	{
 		const char letter{ board(leftCapture) };
-		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+		if (!isSameColorPiece(letter))
 			attacks.push_back(std::move(leftCapture));
 	}
 	
@@ -186,10 +191,10 @@ std::vector<Coordinates> Rook::getAttacks(const Board& board)
 
 			char letter{ board(current) };
 
-			if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			if (!isSameColorPiece(letter))
 				attacks.push_back(std::move(current));
 
-			if (letter != 'x')
+			if (isPiece(letter))
 				break;
 		}
 	}
@@ -207,13 +212,10 @@ std::vector<Coordinates> Knight::getAttacks(const Board& board)
 	{
 		Coordinates current{ m_coordinates + directions[i] };
 
-		if (Board::isOutOfBounds(current))
+		if (Board::isOutOfBounds(current) || isSameColorPiece(board(current)))
 			continue;
 
-		char letter{ board(current) };
-
-		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
-			attacks.push_back(std::move(current));
+		attacks.push_back(std::move(current));
 	}
 
 	return attacks;
@@ -236,10 +238,10 @@ std::vector<Coordinates> Bishop::getAttacks(const Board& board)
 
 			char letter{ board(current) };
 
-			if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+			if (!isSameColorPiece(letter))
 				attacks.push_back(std::move(current));
 
-			if (letter != 'x')
+			if (isPiece(letter))
 				break;
 		}
 	}
@@ -272,7 +274,7 @@ std::vector<Coordinates> King::getAttacks(const Board& board)
 
 		char letter{ board(current) };
 
-		if (letter == 'x' || Piece::getColor(letter) == Piece::Color::Black)
+		if (!isSameColorPiece(letter))
 			attacks.push_back(std::move(current));
 	}
 

@@ -103,3 +103,5 @@ class King : public Piece
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 };
+
+Piece::Color operator!(Piece::Color color);

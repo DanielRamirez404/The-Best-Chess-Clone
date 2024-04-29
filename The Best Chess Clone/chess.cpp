@@ -78,6 +78,9 @@ void Chess::run()
 							m_board.movePieces(oldCoordinates, newCoordinates);
 
 						renderBoard();
+
+						m_board.isKingChecked(!m_playerColor); //this is just to try this function out
+
 						isClickToMove = false;
 					}
 					else

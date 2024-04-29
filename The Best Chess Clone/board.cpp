@@ -78,7 +78,7 @@ void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& new
 
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
-}
+} 
 
 void Board::erasePieceFromList(const Coordinates& coordinates)
 {
@@ -112,7 +112,7 @@ Piece* Board::getPieceFromList(const Coordinates& coordinates)
 	return piece->get();
 }
 
-bool Board::isFromPlayer(const Coordinates& coordinates)
+bool Board::isFromPlayer(const Coordinates& coordinates) const
 {
 	const char letter{ m_matrix(coordinates.x, coordinates.y) };
 	return Piece::isPiece(letter) && Piece::getColor(letter) == m_playerColor;
@@ -126,4 +126,29 @@ bool Board::isOutOfBounds(const Coordinates& coordinates)
 std::vector<std::unique_ptr<Piece>>& Board::getListFromColor(Piece::Color color)
 {
 	return (color == Piece::Color::White) ? m_whitePieces : m_blackPieces;
+}
+
+bool Board::isKingChecked(Piece::Color color)
+{
+	const auto& kingList{ getListFromColor(color) };
+	const auto& rivalList{ getListFromColor(!color) };
+
+	auto king 
+	{
+		std::find_if(kingList.begin(), kingList.end(), [&](const std::unique_ptr<Piece>& piece)
+			{
+				return piece->getType() == Piece::Type::King;
+			})
+	};
+
+	for (const auto& piece : rivalList)
+	{
+		for (const auto& attack : piece->getAttacks(*this))
+		{
+			if (attack == king->get()->getCoordinates())
+				return true;
+		}
+	}
+
+	return false;
 }

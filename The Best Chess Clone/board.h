@@ -16,10 +16,10 @@ class Board
 		std::vector<const Piece*> getPieces();
 
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
-		bool isFromPlayer(const Coordinates& coordinates);
+		bool isFromPlayer(const Coordinates& coordinates) const;
 		
 		//bool isKingMated(Piece::Color color);
-		//bool isKingChecked(Piece::Color color);
+		bool isKingChecked(Piece::Color color);
 		
 		static bool isOutOfBounds(const Coordinates& coordinates);
 

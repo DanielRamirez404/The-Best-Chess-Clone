@@ -9,6 +9,11 @@
 Piece::Piece(const Coordinates& coordinates, Color color)
 	: m_coordinates{ coordinates }, m_color{ color } {}
 
+Piece::Color operator!(Piece::Color color)
+{
+	return (color == Piece::Color::White) ? Piece::Color::Black : Piece::Color::White;
+}
+
 Piece::Color Piece::getColor() const
 {
 	return m_color;

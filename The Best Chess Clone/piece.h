@@ -32,10 +32,12 @@ class Piece
 		const Coordinates& getCoordinates() const;
 		Coordinates& getCoordinates();
 		bool isSameColorPiece(char letter) const;
+		bool isPinned(Board& board);
 
 		virtual Type getType() const = 0;
 		virtual Traits getTraits() const = 0;
 		virtual std::vector<Coordinates> getAttacks(const Board& board) = 0;
+		virtual std::vector<Coordinates> getMoves(Board& board) = 0;
 
 		static Color getColor(char letter);
 		static Type getType(char letter);
@@ -57,6 +59,7 @@ class Pawn : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 class Rook : public Piece
@@ -66,6 +69,7 @@ class Rook : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 class Knight : public Piece
@@ -75,6 +79,7 @@ class Knight : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 class Bishop : public Piece
@@ -84,6 +89,7 @@ class Bishop : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 class Queen : public Piece
@@ -93,6 +99,7 @@ class Queen : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 class King : public Piece
@@ -102,6 +109,7 @@ class King : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
+		std::vector<Coordinates> getMoves(Board& board) override;
 };
 
 Piece::Color operator!(Piece::Color color);

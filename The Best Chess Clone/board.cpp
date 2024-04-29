@@ -2,12 +2,12 @@
 #include "piece.h"
 #include "coordinates.h"
 #include "constants.h"
-#include <iostream>	//to debug
 #include <algorithm>
 #include <array>
 #include <utility>
 #include <vector>
 #include <memory>
+#include <cctype>
 
 Board::Board(Piece::Color playerColor)
 	: m_playerColor{ playerColor }, m_matrix
@@ -78,7 +78,44 @@ void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& new
 
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
-} 
+}
+
+bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const
+{
+	char& currentPosition{ m_matrix(oldCoordinates) };
+	char& attackedPosition{ m_matrix(newCoordinates) };
+	const char currentLetter{ m_matrix(oldCoordinates) };
+	const char attackedLetter{ m_matrix(newCoordinates) };
+
+	currentPosition = 'x';
+	attackedPosition = currentLetter;
+
+	const bool isKing{ Piece::getType(currentLetter) == Piece::Type::King };
+	const bool isLegal{ isKing ? !isAttacked(newCoordinates) : !isKingChecked(Piece::getColor(currentLetter)) };
+
+	currentPosition = currentLetter;
+	attackedPosition = attackedLetter;
+
+	return isLegal;
+}
+
+bool Board::isAttacked(const Coordinates& coordinates) const
+{
+	Piece::Color color{ Piece::Color(m_matrix(coordinates)) };
+	const auto& rivalList{ getListFromColor(!color) };
+
+	for (const auto& piece : rivalList)
+	{
+		for (const auto& attack : piece->getAttacks(*this))
+		{
+			if (attack == coordinates)
+				return true;
+				
+		}
+	}
+
+	return false;
+}
 
 void Board::erasePieceFromList(const Coordinates& coordinates)
 {
@@ -123,15 +160,19 @@ bool Board::isOutOfBounds(const Coordinates& coordinates)
 	return coordinates < Coordinates{ 0, 0 } || coordinates > Coordinates{ Constants::squaresPerLine - 1, Constants::squaresPerLine - 1 };
 }
 
+const std::vector<std::unique_ptr<Piece>>& Board::getListFromColor(Piece::Color color) const
+{
+	return (color == Piece::Color::White) ? m_whitePieces : m_blackPieces;
+}
+
 std::vector<std::unique_ptr<Piece>>& Board::getListFromColor(Piece::Color color)
 {
 	return (color == Piece::Color::White) ? m_whitePieces : m_blackPieces;
 }
 
-bool Board::isKingChecked(Piece::Color color)
+bool Board::isKingChecked(Piece::Color color) const
 {
 	const auto& kingList{ getListFromColor(color) };
-	const auto& rivalList{ getListFromColor(!color) };
 
 	auto king 
 	{
@@ -141,14 +182,5 @@ bool Board::isKingChecked(Piece::Color color)
 			})
 	};
 
-	for (const auto& piece : rivalList)
-	{
-		for (const auto& attack : piece->getAttacks(*this))
-		{
-			if (attack == king->get()->getCoordinates())
-				return true;
-		}
-	}
-
-	return false;
+	return isAttacked(king->get()->getCoordinates());
 }

@@ -79,8 +79,6 @@ void Chess::run()
 
 						renderBoard();
 
-						m_board.isKingChecked(!m_playerColor); //this is just to try this function out
-
 						isClickToMove = false;
 					}
 					else
@@ -91,8 +89,8 @@ void Chess::run()
 						if (m_board.isFromPlayer(oldCoordinates))
 						{
 							isClickToMove = true;
-							auto attacks{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getAttacks(m_board) };
-							renderBoard(attacks);
+							auto moves{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getMoves(m_board) };
+							renderBoard(moves);
 						}
 					}
 				}

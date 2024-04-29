@@ -4,6 +4,7 @@
 #include "board.h"
 #include <memory>
 #include <cctype>
+#include <algorithm>
 #include <vector>
 
 Piece::Piece(const Coordinates& coordinates, Color color)
@@ -93,6 +94,18 @@ std::unique_ptr<Piece> Piece::toPiece(char letter, const Coordinates& coordinate
 bool Piece::isPiece(char letter)
 {
 	return letter != 'x';
+}
+
+bool Piece::isPinned(Board& board)
+{
+	char& boardPosition{ board.m_matrix(m_coordinates) };
+	const char letter{ boardPosition };
+
+	boardPosition = 'x';
+	bool isCheckWithoutPiece{ board.isKingChecked(m_color) };
+	boardPosition = letter;
+
+	return isCheckWithoutPiece;
 }
 
 Piece::Type Pawn::getType() const
@@ -284,6 +297,72 @@ std::vector<Coordinates> King::getAttacks(const Board& board)
 	}
 
 	return attacks;
+}
+
+std::vector<Coordinates> Pawn::getMoves(Board& board)
+{
+	//todo: add en passant
+
+	std::vector<Coordinates> moves{};
+
+	Coordinates moveForward{ m_coordinates + Coordinates{ -1, 0 } };
+
+	if (!board.isOutOfBounds(moveForward) && !isPiece(board(moveForward)))
+		moves.push_back(std::move(moveForward));
+
+	for (auto& attack : getAttacks(board))
+		if (isPiece(board(attack)))
+			moves.push_back(std::move(attack));
+	
+	if (board.isKingChecked(m_color) || isPinned(board))
+		std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	return moves;
+}
+
+std::vector<Coordinates> Rook::getMoves(Board& board)
+{
+	//todo: add castle
+
+	std::vector<Coordinates> moves{ getAttacks(board) };
+
+	if (board.isKingChecked(m_color) || isPinned(board))
+		std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	return moves;
+}
+
+std::vector<Coordinates> Knight::getMoves(Board& board)
+{
+	return (board.isKingChecked(m_color) || isPinned(board)) ? std::vector<Coordinates>{} : getAttacks(board);
+}
+
+std::vector<Coordinates> Bishop::getMoves(Board& board)
+{
+	std::vector<Coordinates> moves{ getAttacks(board) };
+
+	if (board.isKingChecked(m_color) || isPinned(board))
+		std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	return moves;
+}
+
+std::vector<Coordinates> Queen::getMoves(Board& board)
+{
+	std::vector<Coordinates> moves{ getAttacks(board) };
+
+	if (board.isKingChecked(m_color) || isPinned(board))
+		std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	return moves;
+}
+
+std::vector<Coordinates> King::getMoves(Board& board)
+{
+	//todo: add castle
+	std::vector<Coordinates> moves{ getAttacks(board) };
+	std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+	return moves;
 }
 
 Pawn::Pawn(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}

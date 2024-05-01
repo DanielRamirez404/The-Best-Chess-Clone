@@ -365,6 +365,36 @@ std::vector<Coordinates> King::getMoves(Board& board)
 	return moves;
 }
 
+int Pawn::getValue() const
+{
+	return 1;
+}
+
+int Knight::getValue() const
+{
+	return 3;
+}
+
+int Bishop::getValue() const
+{
+	return 3;
+}
+
+int Rook::getValue() const
+{
+	return 5;
+}
+
+int Queen::getValue() const
+{
+	return 9;
+}
+
+int King::getValue() const
+{
+	return 0;	//not used directly in evaluations
+}
+
 Pawn::Pawn(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
 Rook::Rook(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
 Knight::Knight(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}

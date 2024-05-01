@@ -14,6 +14,7 @@ class Board
 		char operator()(const Coordinates& coordinates) const;
 
 		std::vector<const Piece*> getPieces();
+		Piece::Color getPlayerColor() const;
 
 		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 
@@ -25,6 +26,7 @@ class Board
 		bool isKingChecked(Piece::Color color) const;
 
 		Coordinates generateAIMove();
+		int getColorEval(Piece::Color color);
 		
 		static bool isOutOfBounds(const Coordinates& coordinates);
 
@@ -51,5 +53,4 @@ class Board
 
 		EvaluatedMove& max(EvaluatedMove& firstMove, EvaluatedMove& secondMove);
 		EvaluatedMove getBestMoveForColor(Piece::Color color, int deepness);
-		int getColorEval(Piece::Color color);
 };

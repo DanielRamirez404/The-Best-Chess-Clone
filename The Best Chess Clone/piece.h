@@ -38,6 +38,7 @@ class Piece
 		virtual Traits getTraits() const = 0;
 		virtual std::vector<Coordinates> getAttacks(const Board& board) = 0;
 		virtual std::vector<Coordinates> getMoves(Board& board) = 0;
+		virtual int getValue() const = 0;
 
 		static Color getColor(char letter);
 		static Type getType(char letter);
@@ -58,6 +59,7 @@ class Pawn : public Piece
 		Pawn(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -68,6 +70,7 @@ class Rook : public Piece
 		Rook(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -78,6 +81,7 @@ class Knight : public Piece
 		Knight(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -88,6 +92,7 @@ class Bishop : public Piece
 		Bishop(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -98,6 +103,7 @@ class Queen : public Piece
 		Queen(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -108,6 +114,7 @@ class King : public Piece
 		King(const Coordinates& coordinates, Color color);
 		Type getType() const override;
 		Traits getTraits() const override;
+		int getValue() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };

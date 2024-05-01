@@ -61,6 +61,10 @@ std::vector<const Piece*> Board::getPieces()
 	return pieces;
 }
 
+Piece::Color Board::getPlayerColor() const
+{
+	return m_playerColor;
+}
 
 char Board::operator()(const Coordinates& coordinates) const
 {
@@ -101,7 +105,7 @@ bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& ne
 
 bool Board::isAttacked(const Coordinates& coordinates) const
 {
-	Piece::Color color{ Piece::Color(m_matrix(coordinates)) };
+	Piece::Color color{ Piece::getColor(m_matrix(coordinates)) };
 	const auto& rivalList{ getListFromColor(!color) };
 
 	for (const auto& piece : rivalList)
@@ -110,7 +114,6 @@ bool Board::isAttacked(const Coordinates& coordinates) const
 		{
 			if (attack == coordinates)
 				return true;
-				
 		}
 	}
 
@@ -197,7 +200,20 @@ bool Board::isKingMated(Piece::Color color)
 			})
 	};
 
-	return isAttacked(king->get()->getCoordinates()) && king->get()->getMoves(*this).size() == 0;
+	if (isAttacked(king->get()->getCoordinates()))
+	{
+		const auto movablePieceNumber
+		{ 
+			std::count_if(kingList.begin(), kingList.end(), [&](const std::unique_ptr<Piece>& piece)
+				{ 
+					return !piece->getMoves(*this).empty(); 
+				})
+		};
+
+		return movablePieceNumber == 0;
+	}
+
+	return false;
 }
 
 Coordinates Board::generateAIMove()
@@ -217,34 +233,60 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 	EvaluatedMove bestBranchMove{};
 
 	//this to avoid compiler errors for the time being
-
-	if (color == Piece::Color::White)
-		deepness++;
+	deepness++;
+	auto& thisColorList{ getListFromColor(color) };
 
 	/*
-		thisColorPieces = getListFromColor(color);
 
-		for piece in thisColorPieces
+	for (auto& piece : thisColorList)
+	{
+		EvaluatedMove bestMove{};
 
-			EvaluatedMove bestMove{};
-
-			for move in piece
-
+		for (const auto& move : piece->getMoves(*this) )
+		{
 				makeSavestate(thisColorPieces);
 				makeMove();
-
+			
 				if deepness > 0
 				{
 					bestMove = getBestMoveForColor(!color, deepness - 1);
 					continue
 				}
-				
+			
 				bestMove = max(bestMove, EvaluatedMove{ move, eval(!color) });
 				undoMove();
 				loadSavestate(thisColorPieces);
-
-			bestBranchMove = max(bestFromBranch, bestMove);
+		}
+		
+		bestBranchMove = max(bestFromBranch, bestMove);
+	}
 	*/
 
 	return bestBranchMove;
+}
+
+int Board::getColorEval(Piece::Color color)
+{
+	if (isKingMated(color))
+		return Constants::minEval;
+
+	if (isKingMated(!color))
+		return Constants::maxEval;
+
+	const auto& thisColorList{ getListFromColor(color) };
+	const auto& rivalColorList{ getListFromColor(!color) };
+	int eval{ 0 };
+
+	for (const auto& piece : thisColorList)
+	{
+		eval += piece->getValue() * 100;
+
+		for (int i{0}; i < piece->getAttacks(*this).size(); ++i)
+			eval += 5;
+	}
+
+	for (const auto& piece : rivalColorList)
+		eval -= piece->getValue() * 100;
+
+	return eval;
 }

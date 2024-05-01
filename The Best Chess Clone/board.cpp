@@ -37,9 +37,9 @@ Board::Board(Piece::Color playerColor)
 				continue;
 
 			if (playerColor == Piece::Color::Black)
-				letter = (letter == toupper(letter)) ? tolower(letter) : toupper(letter);
+				letter = static_cast<char>((letter == toupper(letter)) ? tolower(letter) : (toupper(letter)));
 			
-			auto& list{ (Piece::getColor(letter) == Piece::Color::White) ? m_whitePieces : m_blackPieces };
+			auto& list{ getListFromColor(Piece::getColor(letter)) };
 
 			list.push_back(Piece::toPiece(letter, { i, j }));
 		}
@@ -183,4 +183,68 @@ bool Board::isKingChecked(Piece::Color color) const
 	};
 
 	return isAttacked(king->get()->getCoordinates());
+}
+
+bool Board::isKingMated(Piece::Color color)
+{
+	const auto& kingList{ getListFromColor(color) };
+
+	auto king
+	{
+		std::find_if(kingList.begin(), kingList.end(), [&](const std::unique_ptr<Piece>& piece)
+			{
+				return piece->getType() == Piece::Type::King;
+			})
+	};
+
+	return isAttacked(king->get()->getCoordinates()) && king->get()->getMoves(*this).size() == 0;
+}
+
+Coordinates Board::generateAIMove()
+{
+	constexpr int defaultDeepness{ 3 };
+	EvaluatedMove startingMove{};
+	return getBestMoveForColor(!m_playerColor, defaultDeepness).move;
+}
+
+Board::EvaluatedMove& Board::max(EvaluatedMove& firstMove, EvaluatedMove& secondMove)
+{
+	return (firstMove.eval > secondMove.eval) ? firstMove : secondMove;
+}
+
+Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness)
+{
+	EvaluatedMove bestBranchMove{};
+
+	//this to avoid compiler errors for the time being
+
+	if (color == Piece::Color::White)
+		deepness++;
+
+	/*
+		thisColorPieces = getListFromColor(color);
+
+		for piece in thisColorPieces
+
+			EvaluatedMove bestMove{};
+
+			for move in piece
+
+				makeSavestate(thisColorPieces);
+				makeMove();
+
+				if deepness > 0
+				{
+					bestMove = getBestMoveForColor(!color, deepness - 1);
+					continue
+				}
+				
+				bestMove = max(bestMove, EvaluatedMove{ move, eval(!color) });
+				undoMove();
+				loadSavestate(thisColorPieces);
+
+			bestBranchMove = max(bestFromBranch, bestMove);
+	*/
+
+	return bestBranchMove;
 }

@@ -44,6 +44,8 @@ class Piece
 		static Type getType(char letter);
 		static std::unique_ptr<Piece> toPiece(char letter, const Coordinates& coordinates);
 		static bool isPiece(char letter);
+		static void setPlayerColor(Color color);
+		static Color getPlayerColor();
 
 	protected:
 
@@ -51,6 +53,10 @@ class Piece
 
 		Color m_color{};
 		Coordinates m_coordinates{};
+
+		static Color s_playerColor;
+
+		static int getForwardDirection(Color color);
 };
 
 class Pawn : public Piece

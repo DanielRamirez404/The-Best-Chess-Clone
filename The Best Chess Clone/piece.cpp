@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <vector>
 
+Piece::Color Piece::s_playerColor{ Piece::Color::White };
+
 Piece::Piece(const Coordinates& coordinates, Color color)
 	: m_coordinates{ coordinates }, m_color{ color } {}
 
@@ -96,6 +98,21 @@ bool Piece::isPiece(char letter)
 	return letter != 'x';
 }
 
+void Piece::setPlayerColor(Piece::Color color)
+{
+	s_playerColor = color;
+}
+
+Piece::Color Piece::getPlayerColor()
+{
+	return s_playerColor;
+}
+
+int Piece::getForwardDirection(Piece::Color color)
+{
+	return (s_playerColor == color) ? -1 : 1;
+}
+
 bool Piece::isPinned(Board& board)
 {
 	char& boardPosition{ board.m_matrix(m_coordinates) };
@@ -172,8 +189,8 @@ std::vector<Coordinates> Pawn::getAttacks(const Board& board)
 {
 	std::vector<Coordinates> attacks{};
 
-	Coordinates rightCapture{ m_coordinates + Coordinates{ -1, 1 } };
-	Coordinates leftCapture{ m_coordinates + Coordinates{ -1, -1 } };
+	Coordinates rightCapture{ m_coordinates + Coordinates{ getForwardDirection(m_color), 1 } };
+	Coordinates leftCapture{ m_coordinates + Coordinates{ getForwardDirection(m_color), -1 } };
 
 	if (!Board::isOutOfBounds(rightCapture))
 	{
@@ -305,7 +322,7 @@ std::vector<Coordinates> Pawn::getMoves(Board& board)
 
 	std::vector<Coordinates> moves{};
 
-	Coordinates moveForward{ m_coordinates + Coordinates{ -1, 0 } };
+	Coordinates moveForward{ m_coordinates + Coordinates{ getForwardDirection(m_color), 0 } };
 
 	if (!board.isOutOfBounds(moveForward) && !isPiece(board(moveForward)))
 		moves.push_back(std::move(moveForward));

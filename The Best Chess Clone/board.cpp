@@ -24,6 +24,8 @@ Board::Board(Piece::Color playerColor)
 		}
 	}
 {
+	Piece::setPlayerColor(playerColor);
+
 	m_whitePieces.reserve(Constants::piecesPerColor);
 	m_blackPieces.reserve(Constants::piecesPerColor);
 	

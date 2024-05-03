@@ -2,6 +2,7 @@
 #include "boardMatrix.h"
 #include "piece.h"
 #include "coordinates.h"
+#include "constants.h"
 #include <vector>
 #include <memory>
 
@@ -36,8 +37,18 @@ class Board
 
 		struct EvaluatedMove 
 		{
-			Coordinates move{ -1, -1 };		//starts with impossible move
-			int eval{ -1000000 };			//and min eval
+			Coordinates move{ -1, -1 };				//starts with impossible move
+			int eval{ Constants::minEval };			//and min eval
+		};
+
+		class PiecesSavestate 
+		{
+			public:
+				PiecesSavestate(const std::vector<std::unique_ptr<Piece>>& piecesList);
+				void save(const std::vector<std::unique_ptr<Piece>>& piecesList);
+				std::vector<std::unique_ptr<Piece>> load();
+			private:
+				std::vector<std::unique_ptr<Piece>> m_pieces{};
 		};
 
 		Piece::Color m_playerColor{};

@@ -412,6 +412,36 @@ int King::getValue() const
 	return 0;	//not used directly in evaluations
 }
 
+char Pawn::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'p' : 'P';
+}
+
+char King::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'k' : 'K';
+}
+
+char Queen::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'q' : 'Q';
+}
+
+char Bishop::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'b' : 'B';
+}
+
+char Knight::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'n' : 'N';
+}
+
+char Rook::getLetter() const
+{
+	return (m_color == Piece::Color::White) ? 'r' : 'R';
+}
+
 Pawn::Pawn(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
 Rook::Rook(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
 Knight::Knight(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}

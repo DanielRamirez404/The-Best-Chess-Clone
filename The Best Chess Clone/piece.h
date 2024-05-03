@@ -39,6 +39,7 @@ class Piece
 		virtual std::vector<Coordinates> getAttacks(const Board& board) = 0;
 		virtual std::vector<Coordinates> getMoves(Board& board) = 0;
 		virtual int getValue() const = 0;
+		virtual char getLetter() const = 0;
 
 		static Color getColor(char letter);
 		static Type getType(char letter);
@@ -66,6 +67,7 @@ class Pawn : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -77,6 +79,7 @@ class Rook : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -88,6 +91,7 @@ class Knight : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -99,6 +103,7 @@ class Bishop : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -110,6 +115,7 @@ class Queen : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };
@@ -121,6 +127,7 @@ class King : public Piece
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
+		char getLetter() const override;
 		std::vector<Coordinates> getAttacks(const Board& board) override;
 		std::vector<Coordinates> getMoves(Board& board) override;
 };

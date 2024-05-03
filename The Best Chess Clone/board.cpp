@@ -292,3 +292,21 @@ int Board::getColorEval(Piece::Color color)
 
 	return eval;
 }
+
+Board::PiecesSavestate::PiecesSavestate(const std::vector<std::unique_ptr<Piece>>& piecesList)
+{
+	save(piecesList);
+}
+
+void Board::PiecesSavestate::save(const std::vector<std::unique_ptr<Piece>>& piecesList)
+{
+	m_pieces.reserve(piecesList.size());
+	
+	for (const auto& piece : piecesList)
+		m_pieces.push_back(Piece::toPiece(piece->getLetter(), piece->getCoordinates()));
+}
+
+std::vector<std::unique_ptr<Piece>> Board::PiecesSavestate::load()
+{
+	return std::move(m_pieces);
+}

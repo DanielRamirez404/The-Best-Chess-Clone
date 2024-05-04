@@ -218,11 +218,11 @@ bool Board::isKingMated(Piece::Color color)
 	return false;
 }
 
-Coordinates Board::generateAIMove()
+void Board::makeAIMove()
 {
-	constexpr int defaultDeepness{ 3 };
-	EvaluatedMove startingMove{};
-	return getBestMoveForColor(!m_playerColor, defaultDeepness).move;
+	constexpr int defaultDeepness{ 0 };
+	const EvaluatedMove bestMove { getBestMoveForColor(!m_playerColor, defaultDeepness) };
+	movePieces(bestMove.initialCoordinates, bestMove.move);
 }
 
 Board::EvaluatedMove& Board::max(EvaluatedMove& firstMove, EvaluatedMove& secondMove)
@@ -234,35 +234,47 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 {
 	EvaluatedMove bestBranchMove{};
 
-	//this to avoid compiler errors for the time being
-	deepness++;
 	auto& thisColorList{ getListFromColor(color) };
+	auto& rivalColorList{ getListFromColor(!color) };
 
-	/*
-
-	for (auto& piece : thisColorList)
+	for (auto& piece : PiecesSavestate(thisColorList).load())
 	{
 		EvaluatedMove bestMove{};
 
 		for (const auto& move : piece->getMoves(*this) )
 		{
-				makeSavestate(thisColorPieces);
-				makeMove();
+			PiecesSavestate initialPieceState{ thisColorList };
+			PiecesSavestate initialRivalPieceState{ rivalColorList };
+
+			Coordinates initialCoordinates{ piece->getCoordinates() };
+
+			char& initialPosition{ m_matrix(initialCoordinates) };
+			char& attackedPosition{ m_matrix(move) };
+			const char initialLetter{ m_matrix(initialCoordinates) };
+			const char attackedLetter{ m_matrix(move) };
+
+			movePieces(initialCoordinates, move);
+
+			/* to fix:
 			
-				if deepness > 0
-				{
-					bestMove = getBestMoveForColor(!color, deepness - 1);
-					continue
-				}
+			if (deepness > 0)
+				bestMove = getBestMoveForColor(!color, deepness - 1);
+
+			*/
 			
-				bestMove = max(bestMove, EvaluatedMove{ move, eval(!color) });
-				undoMove();
-				loadSavestate(thisColorPieces);
+			EvaluatedMove thisMove{ initialCoordinates, move, getColorEval(color) };
+
+			bestMove = max(bestMove, thisMove);
+				
+			initialPosition = initialLetter;
+			attackedPosition = attackedLetter;
+			
+			thisColorList = initialPieceState.load();
+			rivalColorList = initialRivalPieceState.load();
 		}
 		
-		bestBranchMove = max(bestFromBranch, bestMove);
+		bestBranchMove = max(bestBranchMove, bestMove);
 	}
-	*/
 
 	return bestBranchMove;
 }

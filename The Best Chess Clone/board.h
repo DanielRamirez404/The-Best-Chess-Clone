@@ -26,7 +26,7 @@ class Board
 		bool isKingMated(Piece::Color color);
 		bool isKingChecked(Piece::Color color) const;
 
-		Coordinates generateAIMove();
+		void makeAIMove();
 		int getColorEval(Piece::Color color);
 		
 		static bool isOutOfBounds(const Coordinates& coordinates);
@@ -37,8 +37,9 @@ class Board
 
 		struct EvaluatedMove 
 		{
-			Coordinates move{ -1, -1 };				//starts with impossible move
-			int eval{ Constants::minEval };			//and min eval
+			Coordinates initialCoordinates{ -1, -1 };	//starts with impossible coordinates
+			Coordinates move{ -1, -1 };					//starts with impossible coordinates
+			int eval{ Constants::minEval };				//and min eval
 		};
 
 		class PiecesSavestate 

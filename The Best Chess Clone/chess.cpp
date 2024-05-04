@@ -30,6 +30,8 @@ Chess::Chess()
 		m_errorCode = loadResources();
 }
 
+#include <iostream>
+
 Chess::~Chess()
 {
 	for (auto& pair : m_pieceTextureMap)
@@ -70,16 +72,25 @@ void Chess::run()
 				{
 					if (isClickToMove)
 					{
+						isClickToMove = false;
+
 						Coordinates newCoordinates{ event.button.x, event.button.y };
-						
 						newCoordinates.toMatrixCoord();
+
+						auto moves{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getMoves(m_board) };
+
+						if (std::find(moves.begin(), moves.end(), newCoordinates) == moves.end())
+						{
+							renderBoard();
+							continue;
+						}
 
 						if (oldCoordinates != newCoordinates)
 							m_board.movePieces(oldCoordinates, newCoordinates);
 
 						renderBoard();
-
-						isClickToMove = false;
+						m_board.makeAIMove();
+						renderBoard();
 					}
 					else
 					{

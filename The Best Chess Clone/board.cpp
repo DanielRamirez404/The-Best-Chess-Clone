@@ -220,7 +220,7 @@ bool Board::isKingMated(Piece::Color color)
 
 void Board::makeAIMove()
 {
-	constexpr int defaultDeepness{ 0 };
+	constexpr int defaultDeepness{ 1 };
 	const EvaluatedMove bestMove { getBestMoveForColor(!m_playerColor, defaultDeepness) };
 	movePieces(bestMove.initialCoordinates, bestMove.move);
 }
@@ -247,23 +247,15 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 			PiecesSavestate initialRivalPieceState{ rivalColorList };
 
 			Coordinates initialCoordinates{ piece->getCoordinates() };
-
 			char& initialPosition{ m_matrix(initialCoordinates) };
 			char& attackedPosition{ m_matrix(move) };
 			const char initialLetter{ m_matrix(initialCoordinates) };
 			const char attackedLetter{ m_matrix(move) };
-
 			movePieces(initialCoordinates, move);
-
-			/* to fix:
 			
-			if (deepness > 0)
-				bestMove = getBestMoveForColor(!color, deepness - 1);
-
-			*/
+			EvaluatedMove thisMove{ initialCoordinates, move };
+			thisMove.eval = (deepness > 0) ? -getBestMoveForColor(!color, deepness - 1).eval : getColorEval(color);
 			
-			EvaluatedMove thisMove{ initialCoordinates, move, getColorEval(color) };
-
 			bestMove = max(bestMove, thisMove);
 				
 			initialPosition = initialLetter;

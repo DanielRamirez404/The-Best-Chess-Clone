@@ -21,7 +21,7 @@ class Board
 		void makeMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		std::vector<Coordinates> getMoves(const Coordinates& coordinates);
 
-		bool isEnPassant(const Coordinates& coordinates) const;
+		bool isEnPassant(const Coordinates& coordinates, Piece::Color color) const;
 
 		bool isFromPlayer(const Coordinates& coordinates) const;
 		bool isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const;
@@ -46,6 +46,12 @@ class Board
 			int eval{ Constants::minEval };				//and min eval
 		};
 
+		struct EnPassant
+		{
+			Coordinates coordinates{};
+			Piece::Color movingColor{};
+		};
+
 		class PiecesSavestate 
 		{
 			public:
@@ -56,9 +62,19 @@ class Board
 				std::vector<std::unique_ptr<Piece>> m_pieces{};
 		};
 
+		class EnPassantSavestate
+		{
+			public:
+				EnPassantSavestate(std::optional<EnPassant> enPassant);
+				void save(std::optional<EnPassant> enPassant);
+				std::optional<EnPassant> load();
+			private:
+				std::optional<EnPassant> m_enPassant{};
+		};
+
 		Piece::Color m_playerColor{};
 		mutable BoardMatrix m_matrix{ {} };
-		std::optional<Coordinates> m_enPassant{};
+		std::optional<EnPassant> m_enPassant{};
 
 		std::vector<std::unique_ptr<Piece>> m_whitePieces{};
 		std::vector<std::unique_ptr<Piece>> m_blackPieces{};

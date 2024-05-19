@@ -345,7 +345,7 @@ std::vector<Coordinates> Pawn::getMoves(Board& board)
 	}
 		
 	for (auto& attack : getAttacks(board))
-		if (isPiece(board(attack)) || board.isEnPassant(attack))
+		if (isPiece(board(attack)) || board.isEnPassant(attack, m_color))
 			moves.push_back(std::move(attack));
 	
 	if (board.isKingChecked(m_color) || isPinned(board))

@@ -10,6 +10,8 @@
 #include <cctype>
 #include <optional>
 
+#include <iostream>
+
 Board::Board(Piece::Color playerColor)
 	: m_playerColor{ playerColor }, m_matrix
 	{
@@ -80,19 +82,27 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 	const auto& piece = getPieceFromList(oldCoordinates);
 
 	if (Piece::isPiece(newSquare))
+	{
 		erasePieceFromList(newCoordinates);
-	else if (isEnPassant(newCoordinates) && piece->getType() == Piece::Type::Pawn)
-		erasePieceFromList(newCoordinates + Coordinates{ Piece::getForwardDirection(!piece->getColor()), 0 });
+	}
+	else if (isEnPassant(newCoordinates, piece->getColor()) && piece->getType() == Piece::Type::Pawn)
+	{	
+		Coordinates rivalPawnCoordinates{ newCoordinates + Coordinates{ Piece::getForwardDirection(!piece->getColor()), 0 } };
+		erasePieceFromList(rivalPawnCoordinates);
+		m_matrix(rivalPawnCoordinates) = 'x';
+	}
 
-	piece->getCoordinates() = newCoordinates;
-	
+	m_enPassant = std::nullopt;
+
 	if (!piece->hasMoved())
 	{
 		piece->addMovedFlag();
+
 		if (piece->getType() == Piece::Type::Pawn)
-			m_enPassant = Coordinates{ oldCoordinates + Coordinates{ Piece::getForwardDirection(piece->getColor()), 0 }  };
+			m_enPassant = EnPassant{ oldCoordinates + Coordinates{ Piece::getForwardDirection(piece->getColor()), 0 }, !piece->getColor() };
 	}
 
+	piece->getCoordinates() = newCoordinates;
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
 }
@@ -102,9 +112,9 @@ std::vector<Coordinates> Board::getMoves(const Coordinates& coordinates)
 	return getPieceFromList(coordinates)->getMoves(*this);
 }
 
-bool Board::isEnPassant(const Coordinates& coordinates) const
+bool Board::isEnPassant(const Coordinates& coordinates, Piece::Color color) const
 {
-	return (m_enPassant) ? m_enPassant == coordinates : false;
+	return (m_enPassant) ? m_enPassant->coordinates == coordinates && m_enPassant->movingColor == color : false;
 }
 
 bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const
@@ -243,6 +253,7 @@ void Board::makeAIMove()
 {
 	constexpr int defaultDeepness{ 1 };
 	const EvaluatedMove bestMove { getBestMoveForColor(!m_playerColor, defaultDeepness) };
+	std::cout << "crescere...\n";
 	makeMove(bestMove.initialCoordinates, bestMove.move);
 }
 
@@ -266,6 +277,7 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 		{
 			PiecesSavestate initialPieceState{ thisColorList };
 			PiecesSavestate initialRivalPieceState{ rivalColorList };
+			EnPassantSavestate initialEnPassantState{ m_enPassant };
 
 			Coordinates initialCoordinates{ piece->getCoordinates() };
 			char& initialPosition{ m_matrix(initialCoordinates) };
@@ -284,6 +296,7 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 			
 			thisColorList = initialPieceState.load();
 			rivalColorList = initialRivalPieceState.load();
+			m_enPassant = initialEnPassantState.load();
 		}
 		
 		bestBranchMove = max(bestBranchMove, bestMove);
@@ -334,4 +347,19 @@ void Board::PiecesSavestate::save(const std::vector<std::unique_ptr<Piece>>& pie
 std::vector<std::unique_ptr<Piece>> Board::PiecesSavestate::load()
 {
 	return std::move(m_pieces);
+}
+
+Board::EnPassantSavestate::EnPassantSavestate(std::optional<Board::EnPassant> enPassant)
+{
+	save(enPassant);
+}
+
+void Board::EnPassantSavestate::save(std::optional<Board::EnPassant> enPassant)
+{
+	m_enPassant = enPassant;
+}
+
+std::optional<Board::EnPassant> Board::EnPassantSavestate::load()
+{
+	return m_enPassant;
 }

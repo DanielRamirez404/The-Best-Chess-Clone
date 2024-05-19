@@ -17,7 +17,8 @@ class Board
 		std::vector<const Piece*> getPieces();
 		Piece::Color getPlayerColor() const;
 
-		void movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
+		void makeMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
+		std::vector<Coordinates> getMoves(const Coordinates& coordinates);
 
 		bool isFromPlayer(const Coordinates& coordinates) const;
 		bool isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const;

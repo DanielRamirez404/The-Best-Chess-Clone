@@ -9,8 +9,8 @@
 
 Piece::Color Piece::s_playerColor{ Piece::Color::White };
 
-Piece::Piece(const Coordinates& coordinates, Color color)
-	: m_coordinates{ coordinates }, m_color{ color } {}
+Piece::Piece(const Coordinates& coordinates, Color color, bool hasMoved)
+	: m_coordinates{ coordinates }, m_color{ color }, m_hasMoved{ hasMoved } {}
 
 Piece::Color operator!(Piece::Color color)
 {
@@ -66,27 +66,27 @@ Piece::Type Piece::getType(char letter)
 	return Piece::Type::King;
 }
 
-std::unique_ptr<Piece> Piece::toPiece(char letter, const Coordinates& coordinates)
+std::unique_ptr<Piece> Piece::toPiece(char letter, const Coordinates& coordinates, bool hasMoved)
 {
 	switch (getType(letter))
 	{
 		case Piece::Type::Pawn:
-			return std::make_unique<Pawn>(coordinates, getColor(letter));
+			return std::make_unique<Pawn>(coordinates, getColor(letter), hasMoved);
 			break;
 		case Piece::Type::Rook:
-			return std::make_unique<Rook>(coordinates, getColor(letter));
+			return std::make_unique<Rook>(coordinates, getColor(letter), hasMoved);
 			break;
 		case Piece::Type::Knight:
-			return std::make_unique<Knight>(coordinates, getColor(letter));
+			return std::make_unique<Knight>(coordinates, getColor(letter), hasMoved);
 			break;
 		case Piece::Type::Bishop:
-			return std::make_unique<Bishop>(coordinates, getColor(letter));
+			return std::make_unique<Bishop>(coordinates, getColor(letter), hasMoved);
 			break;
 		case Piece::Type::Queen:
-			return std::make_unique<Queen>(coordinates, getColor(letter));
+			return std::make_unique<Queen>(coordinates, getColor(letter), hasMoved);
 			break;
 		case Piece::Type::King:
-			return std::make_unique<King>(coordinates, getColor(letter));
+			return std::make_unique<King>(coordinates, getColor(letter), hasMoved);
 			break;
 	}
 
@@ -123,6 +123,16 @@ bool Piece::isPinned(Board& board)
 	boardPosition = letter;
 
 	return isCheckWithoutPiece;
+}
+
+bool Piece::hasMoved() const
+{
+	return m_hasMoved;
+}
+
+void Piece::addMovedFlag() const
+{
+	m_hasMoved = true;
 }
 
 Piece::Type Pawn::getType() const
@@ -286,9 +296,9 @@ std::vector<Coordinates> Bishop::getAttacks(const Board& board)
 
 std::vector<Coordinates> Queen::getAttacks(const Board& board)
 {
-	std::vector<Coordinates> attacks{ Rook{m_coordinates, m_color }.getAttacks(board) };
+	std::vector<Coordinates> attacks{ Rook{m_coordinates, m_color, true}.getAttacks(board) };
 
-	for (auto& attack : Bishop{ m_coordinates, m_color }.getAttacks(board))
+	for (auto& attack : Bishop{ m_coordinates, m_color, true}.getAttacks(board))
 		attacks.push_back(std::move(attack));
 
 	return attacks;
@@ -325,8 +335,17 @@ std::vector<Coordinates> Pawn::getMoves(Board& board)
 	Coordinates moveForward{ m_coordinates + Coordinates{ getForwardDirection(m_color), 0 } };
 
 	if (!board.isOutOfBounds(moveForward) && !isPiece(board(moveForward)))
+	{
 		moves.push_back(std::move(moveForward));
 
+		if (!m_hasMoved)
+		{
+			Coordinates moveTwiceForward{ m_coordinates + Coordinates{ getForwardDirection(m_color) * 2, 0 } };
+			if (!board.isOutOfBounds(moveTwiceForward) && !isPiece(board(moveTwiceForward)))
+				moves.push_back(std::move(moveTwiceForward));
+		}
+	}
+		
 	for (auto& attack : getAttacks(board))
 		if (isPiece(board(attack)))
 			moves.push_back(std::move(attack));
@@ -442,9 +461,10 @@ char Rook::getLetter() const
 	return (m_color == Piece::Color::White) ? 'r' : 'R';
 }
 
-Pawn::Pawn(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
-Rook::Rook(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
-Knight::Knight(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
-Bishop::Bishop(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
-Queen::Queen(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
-King::King(const Coordinates& coordinates, Color color) : Piece{ coordinates, color } {}
+Pawn::Pawn(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
+
+Rook::Rook(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
+Knight::Knight(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
+Bishop::Bishop(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
+Queen::Queen(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
+King::King(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}

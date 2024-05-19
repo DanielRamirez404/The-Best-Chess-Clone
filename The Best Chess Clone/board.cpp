@@ -43,7 +43,7 @@ Board::Board(Piece::Color playerColor)
 			
 			auto& list{ getListFromColor(Piece::getColor(letter)) };
 
-			list.push_back(Piece::toPiece(letter, { i, j }));
+			list.push_back(Piece::toPiece(letter, { i, j }, false));
 		}
 	}
 }
@@ -73,17 +73,27 @@ char Board::operator()(const Coordinates& coordinates) const
 	return m_matrix(coordinates);
 }
 
-void Board::movePieces(const Coordinates& oldCoordinates, const Coordinates& newCoordinates)
+void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates)
 {
 	char& newSquare{ m_matrix(newCoordinates) };
 
 	if (Piece::isPiece(newSquare))
 		erasePieceFromList(newCoordinates);
 
-	getPieceFromList(oldCoordinates)->getCoordinates() = newCoordinates;
+	const auto& piece = getPieceFromList(oldCoordinates);
+	
+	piece->getCoordinates() = newCoordinates;
+	
+	if (!piece->hasMoved())
+		piece->addMovedFlag();
 
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
+}
+
+std::vector<Coordinates> Board::getMoves(const Coordinates& coordinates)
+{
+	return getPieceFromList(coordinates)->getMoves(*this);
 }
 
 bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const
@@ -222,7 +232,7 @@ void Board::makeAIMove()
 {
 	constexpr int defaultDeepness{ 1 };
 	const EvaluatedMove bestMove { getBestMoveForColor(!m_playerColor, defaultDeepness) };
-	movePieces(bestMove.initialCoordinates, bestMove.move);
+	makeMove(bestMove.initialCoordinates, bestMove.move);
 }
 
 Board::EvaluatedMove& Board::max(EvaluatedMove& firstMove, EvaluatedMove& secondMove)
@@ -251,7 +261,7 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 			char& attackedPosition{ m_matrix(move) };
 			const char initialLetter{ m_matrix(initialCoordinates) };
 			const char attackedLetter{ m_matrix(move) };
-			movePieces(initialCoordinates, move);
+			makeMove(initialCoordinates, move);
 			
 			EvaluatedMove thisMove{ initialCoordinates, move };
 			thisMove.eval = (deepness > 0) ? -getBestMoveForColor(!color, deepness - 1).eval : getColorEval(color);
@@ -307,7 +317,7 @@ void Board::PiecesSavestate::save(const std::vector<std::unique_ptr<Piece>>& pie
 	m_pieces.reserve(piecesList.size());
 	
 	for (const auto& piece : piecesList)
-		m_pieces.push_back(Piece::toPiece(piece->getLetter(), piece->getCoordinates()));
+		m_pieces.push_back(Piece::toPiece(piece->getLetter(), piece->getCoordinates(), piece->hasMoved()));
 }
 
 std::vector<std::unique_ptr<Piece>> Board::PiecesSavestate::load()

@@ -33,6 +33,8 @@ class Piece
 		Coordinates& getCoordinates();
 		bool isSameColorPiece(char letter) const;
 		bool isPinned(Board& board);
+		bool hasMoved() const;
+		void addMovedFlag() const;
 
 		virtual Type getType() const = 0;
 		virtual Traits getTraits() const = 0;
@@ -43,17 +45,18 @@ class Piece
 
 		static Color getColor(char letter);
 		static Type getType(char letter);
-		static std::unique_ptr<Piece> toPiece(char letter, const Coordinates& coordinates);
+		static std::unique_ptr<Piece> toPiece(char letter, const Coordinates& coordinates, bool hasMoved);
 		static bool isPiece(char letter);
 		static void setPlayerColor(Color color);
 		static Color getPlayerColor();
 
 	protected:
 
-		Piece(const Coordinates& coordinates, Color color);
+		Piece(const Coordinates& coordinates, Color color, bool hasMoved);
 
 		Color m_color{};
 		Coordinates m_coordinates{};
+		mutable bool m_hasMoved{ false };
 
 		static Color s_playerColor;
 
@@ -63,7 +66,7 @@ class Piece
 class Pawn : public Piece
 {
 	public:
-		Pawn(const Coordinates& coordinates, Color color);
+		Pawn(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
@@ -75,7 +78,7 @@ class Pawn : public Piece
 class Rook : public Piece
 {
 	public:
-		Rook(const Coordinates& coordinates, Color color);
+		Rook(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
@@ -87,7 +90,7 @@ class Rook : public Piece
 class Knight : public Piece
 {
 	public:
-		Knight(const Coordinates& coordinates, Color color);
+		Knight(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
@@ -99,7 +102,7 @@ class Knight : public Piece
 class Bishop : public Piece
 {
 	public:
-		Bishop(const Coordinates& coordinates, Color color);
+		Bishop(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
@@ -111,7 +114,7 @@ class Bishop : public Piece
 class Queen : public Piece
 {
 	public:
-		Queen(const Coordinates& coordinates, Color color);
+		Queen(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;
@@ -123,7 +126,7 @@ class Queen : public Piece
 class King : public Piece
 {
 	public:
-		King(const Coordinates& coordinates, Color color);
+		King(const Coordinates& coordinates, Color color, bool hasMoved);
 		Type getType() const override;
 		Traits getTraits() const override;
 		int getValue() const override;

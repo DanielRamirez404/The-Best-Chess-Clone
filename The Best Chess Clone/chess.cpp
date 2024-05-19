@@ -77,7 +77,7 @@ void Chess::run()
 						Coordinates newCoordinates{ event.button.x, event.button.y };
 						newCoordinates.toMatrixCoord();
 
-						auto moves{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getMoves(m_board) };
+						auto moves{ m_board.getMoves(oldCoordinates) };
 
 						if (std::find(moves.begin(), moves.end(), newCoordinates) == moves.end())
 						{
@@ -86,7 +86,7 @@ void Chess::run()
 						}
 
 						if (oldCoordinates != newCoordinates)
-							m_board.movePieces(oldCoordinates, newCoordinates);
+							m_board.makeMove(oldCoordinates, newCoordinates);
 
 						renderBoard();
 						m_board.makeAIMove();
@@ -100,7 +100,7 @@ void Chess::run()
 						if (m_board.isFromPlayer(oldCoordinates))
 						{
 							isClickToMove = true;
-							auto moves{ Piece::toPiece(m_board(oldCoordinates), oldCoordinates)->getMoves(m_board) };
+							auto moves{ m_board.getMoves(oldCoordinates) };
 							renderBoard(moves);
 						}
 					}

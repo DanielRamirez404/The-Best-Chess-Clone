@@ -10,8 +10,6 @@
 #include <cctype>
 #include <optional>
 
-#include <iostream>
-
 Board::Board(Piece::Color playerColor)
 	: m_playerColor{ playerColor }, m_matrix
 	{
@@ -253,7 +251,6 @@ void Board::makeAIMove()
 {
 	constexpr int defaultDeepness{ 1 };
 	const EvaluatedMove bestMove { getBestMoveForColor(!m_playerColor, defaultDeepness) };
-	std::cout << "crescere...\n";
 	makeMove(bestMove.initialCoordinates, bestMove.move);
 }
 

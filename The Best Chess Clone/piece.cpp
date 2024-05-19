@@ -328,8 +328,6 @@ std::vector<Coordinates> King::getAttacks(const Board& board)
 
 std::vector<Coordinates> Pawn::getMoves(Board& board)
 {
-	//todo: add en passant
-
 	std::vector<Coordinates> moves{};
 
 	Coordinates moveForward{ m_coordinates + Coordinates{ getForwardDirection(m_color), 0 } };
@@ -347,7 +345,7 @@ std::vector<Coordinates> Pawn::getMoves(Board& board)
 	}
 		
 	for (auto& attack : getAttacks(board))
-		if (isPiece(board(attack)))
+		if (isPiece(board(attack)) || board.isEnPassant(attack))
 			moves.push_back(std::move(attack));
 	
 	if (board.isKingChecked(m_color) || isPinned(board))

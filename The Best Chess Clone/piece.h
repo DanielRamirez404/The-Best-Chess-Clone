@@ -49,6 +49,7 @@ class Piece
 		static bool isPiece(char letter);
 		static void setPlayerColor(Color color);
 		static Color getPlayerColor();
+		static int getForwardDirection(Color color);
 
 	protected:
 
@@ -59,8 +60,6 @@ class Piece
 		mutable bool m_hasMoved{ false };
 
 		static Color s_playerColor;
-
-		static int getForwardDirection(Color color);
 };
 
 class Pawn : public Piece

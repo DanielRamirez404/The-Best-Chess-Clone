@@ -5,6 +5,7 @@
 #include "constants.h"
 #include <vector>
 #include <memory>
+#include <optional>
 
 class Board
 {
@@ -19,6 +20,8 @@ class Board
 
 		void makeMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates);
 		std::vector<Coordinates> getMoves(const Coordinates& coordinates);
+
+		bool isEnPassant(const Coordinates& coordinates) const;
 
 		bool isFromPlayer(const Coordinates& coordinates) const;
 		bool isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const;
@@ -55,6 +58,7 @@ class Board
 
 		Piece::Color m_playerColor{};
 		mutable BoardMatrix m_matrix{ {} };
+		std::optional<Coordinates> m_enPassant{};
 
 		std::vector<std::unique_ptr<Piece>> m_whitePieces{};
 		std::vector<std::unique_ptr<Piece>> m_blackPieces{};

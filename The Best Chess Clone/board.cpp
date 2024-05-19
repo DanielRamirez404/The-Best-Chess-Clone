@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <cctype>
+#include <optional>
 
 Board::Board(Piece::Color playerColor)
 	: m_playerColor{ playerColor }, m_matrix
@@ -76,16 +77,21 @@ char Board::operator()(const Coordinates& coordinates) const
 void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates)
 {
 	char& newSquare{ m_matrix(newCoordinates) };
+	const auto& piece = getPieceFromList(oldCoordinates);
 
 	if (Piece::isPiece(newSquare))
 		erasePieceFromList(newCoordinates);
+	else if (isEnPassant(newCoordinates) && piece->getType() == Piece::Type::Pawn)
+		erasePieceFromList(newCoordinates + Coordinates{ Piece::getForwardDirection(!piece->getColor()), 0 });
 
-	const auto& piece = getPieceFromList(oldCoordinates);
-	
 	piece->getCoordinates() = newCoordinates;
 	
 	if (!piece->hasMoved())
+	{
 		piece->addMovedFlag();
+		if (piece->getType() == Piece::Type::Pawn)
+			m_enPassant = Coordinates{ oldCoordinates + Coordinates{ Piece::getForwardDirection(piece->getColor()), 0 }  };
+	}
 
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
@@ -94,6 +100,11 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 std::vector<Coordinates> Board::getMoves(const Coordinates& coordinates)
 {
 	return getPieceFromList(coordinates)->getMoves(*this);
+}
+
+bool Board::isEnPassant(const Coordinates& coordinates) const
+{
+	return (m_enPassant) ? m_enPassant == coordinates : false;
 }
 
 bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const

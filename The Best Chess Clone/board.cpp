@@ -137,9 +137,12 @@ bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& ne
 bool Board::isAttacked(const Coordinates& coordinates) const
 {
 	Piece::Color color{ Piece::getColor(m_matrix(coordinates)) };
-	const auto& rivalList{ getListFromColor(!color) };
+	return isAttackedBy(coordinates, !color);
+}
 
-	for (const auto& piece : rivalList)
+bool Board::isAttackedBy(const Coordinates& coordinates, Piece::Color color) const
+{
+	for (const auto& piece : getListFromColor(color))
 	{
 		for (const auto& attack : piece->getAttacks(*this))
 		{

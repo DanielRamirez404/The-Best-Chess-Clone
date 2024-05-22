@@ -26,6 +26,7 @@ class Board
 		bool isFromPlayer(const Coordinates& coordinates) const;
 		bool isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const;
 		bool isAttacked(const Coordinates& coordinates) const;
+		bool isAttackedBy(const Coordinates& coordinates, Piece::Color color) const;
 		
 		bool isKingMated(Piece::Color color);
 		bool isKingChecked(Piece::Color color) const;
@@ -36,6 +37,7 @@ class Board
 		static bool isOutOfBounds(const Coordinates& coordinates);
 
 		friend class Piece;
+		friend class King;
 
 	private:
 

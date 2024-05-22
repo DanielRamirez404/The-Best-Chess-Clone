@@ -6,6 +6,8 @@
 #include <cctype>
 #include <algorithm>
 #include <vector>
+#include <cmath>
+#include <ranges>
 
 Piece::Color Piece::s_playerColor{ Piece::Color::White };
 
@@ -356,8 +358,6 @@ std::vector<Coordinates> Pawn::getMoves(Board& board)
 
 std::vector<Coordinates> Rook::getMoves(Board& board)
 {
-	//todo: add castle
-
 	std::vector<Coordinates> moves{ getAttacks(board) };
 
 	if (board.isKingChecked(m_color) || isPinned(board))
@@ -391,11 +391,71 @@ std::vector<Coordinates> Queen::getMoves(Board& board)
 	return moves;
 }
 
+#include <iostream>
+
 std::vector<Coordinates> King::getMoves(Board& board)
 {
 	//todo: add castle
 	std::vector<Coordinates> moves{ getAttacks(board) };
 	std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	if (!m_hasMoved && !board.isKingChecked(m_color))
+	{
+		const auto& kingPieces{ board.getListFromColor(m_color) };
+		
+		std::vector<const Piece*> rooks{};
+
+		for (const auto& piece : kingPieces)
+			if (piece->getType() == Piece::Type::Rook)
+				rooks.push_back(piece.get());
+
+		constexpr int castlingMoves{ 2 };
+
+		for (auto& rook : rooks)
+		{
+			std::cout << "this rook:\n";
+
+			if (rook->hasMoved())
+				continue;
+
+			const Coordinates& rookCoordinates{ rook->getCoordinates() };
+			bool areMovingSquaresFree{ true };
+			bool isAnyCastlingSquareAttacked{ false };
+
+			int castlingDirection{ (rookCoordinates > m_coordinates) ? 1 : -1 };
+			int inBetweenSquaresNumber{ abs(m_coordinates.y - rookCoordinates.y) - 1 };
+
+			auto lastCastlingCoordinate{ m_coordinates + Coordinates{ 0, castlingDirection * castlingMoves } };
+
+			std::cout << inBetweenSquaresNumber << '\n';
+
+			for (int i{ 1 }; i <= inBetweenSquaresNumber; ++i)
+			{
+				auto squareCoordinates{ m_coordinates + Coordinates{ 0, castlingDirection * i } };
+
+				//std::cout << board(squareCoordinates) << '\n';
+
+				if (isPiece(board(squareCoordinates)))
+				{
+					areMovingSquaresFree = false;
+					break;
+				}
+
+				if (squareCoordinates <= lastCastlingCoordinate)
+					if (board.isAttackedBy(squareCoordinates, !m_color))
+					{
+						isAnyCastlingSquareAttacked = true;
+						break;
+					}
+			}
+
+			if (areMovingSquaresFree && !isAnyCastlingSquareAttacked)
+				moves.push_back(std::move(lastCastlingCoordinate));
+				//std::cout << "Can't castle\n";
+		}
+		//search rooks and check if they've moved. If that's not the case, you can keep adding things to castle
+	}
+
 	return moves;
 }
 

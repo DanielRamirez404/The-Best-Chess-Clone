@@ -9,6 +9,7 @@
 #include <memory>
 #include <cctype>
 #include <optional>
+#include <cmath>
 
 Board::Board(Piece::Color playerColor)
 	: m_playerColor{ playerColor }, m_matrix
@@ -78,6 +79,8 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 {
 	char& newSquare{ m_matrix(newCoordinates) };
 	const auto& piece = getPieceFromList(oldCoordinates);
+	constexpr auto isCastling{ [](Coordinates king, Coordinates move) { return abs(king.y - move.y) > 1; } };
+	bool makeRookCastlingMove{ false };
 
 	if (Piece::isPiece(newSquare))
 	{
@@ -88,6 +91,10 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 		Coordinates rivalPawnCoordinates{ newCoordinates + Coordinates{ Piece::getForwardDirection(!piece->getColor()), 0 } };
 		erasePieceFromList(rivalPawnCoordinates);
 		m_matrix(rivalPawnCoordinates) = 'x';
+	}
+	else if (piece->getType() == Piece::Type::King && isCastling(oldCoordinates, newCoordinates))
+	{
+		makeRookCastlingMove = true;
 	}
 
 	m_enPassant = std::nullopt;
@@ -103,6 +110,14 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 	piece->getCoordinates() = newCoordinates;
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
+	
+	if (makeRookCastlingMove)
+	{
+		int castlingDirection{ (newCoordinates > oldCoordinates) ? 1 : -1 };
+		Coordinates rookCoordinates{ (castlingDirection == 1) ? Coordinates{oldCoordinates.x, Constants::squaresPerLine - 1 } : Coordinates{oldCoordinates.x, 0 } };
+		Coordinates rookMove{ newCoordinates - Coordinates{ 0, castlingDirection } };
+		makeMove(rookCoordinates, rookMove);
+	}
 }
 
 std::vector<Coordinates> Board::getMoves(const Coordinates& coordinates)
@@ -269,6 +284,8 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 	auto& thisColorList{ getListFromColor(color) };
 	auto& rivalColorList{ getListFromColor(!color) };
 
+	constexpr auto isCastling{ [](Coordinates king, Coordinates move) { return abs(king.y - move.y) > 1; } };
+
 	for (auto& piece : PiecesSavestate(thisColorList).load())
 	{
 		EvaluatedMove bestMove{};
@@ -284,15 +301,33 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 			char& attackedPosition{ m_matrix(move) };
 			const char initialLetter{ m_matrix(initialCoordinates) };
 			const char attackedLetter{ m_matrix(move) };
+
+			std::optional<BoardMatrix> currentMatrix{};
+			
+			if	(
+					(isEnPassant(move, piece->getColor()) && piece->getType() == Piece::Type::Pawn) || 
+					(piece->getType() == Piece::Type::King && isCastling(initialCoordinates, move))
+				)
+			{
+				currentMatrix = m_matrix;
+			}
+
 			makeMove(initialCoordinates, move);
 			
 			EvaluatedMove thisMove{ initialCoordinates, move };
 			thisMove.eval = (deepness > 0) ? -getBestMoveForColor(!color, deepness - 1).eval : getColorEval(color);
 			
 			bestMove = max(bestMove, thisMove);
-				
-			initialPosition = initialLetter;
-			attackedPosition = attackedLetter;
+			
+			if (currentMatrix)
+			{
+				m_matrix = currentMatrix.value();
+			}
+			else
+			{
+				initialPosition = initialLetter;
+				attackedPosition = attackedLetter;
+			}
 			
 			thisColorList = initialPieceState.load();
 			rivalColorList = initialRivalPieceState.load();

@@ -391,11 +391,8 @@ std::vector<Coordinates> Queen::getMoves(Board& board)
 	return moves;
 }
 
-#include <iostream>
-
 std::vector<Coordinates> King::getMoves(Board& board)
 {
-	//todo: add castle
 	std::vector<Coordinates> moves{ getAttacks(board) };
 	std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
 
@@ -413,8 +410,6 @@ std::vector<Coordinates> King::getMoves(Board& board)
 
 		for (auto& rook : rooks)
 		{
-			std::cout << "this rook:\n";
-
 			if (rook->hasMoved())
 				continue;
 
@@ -427,13 +422,9 @@ std::vector<Coordinates> King::getMoves(Board& board)
 
 			auto lastCastlingCoordinate{ m_coordinates + Coordinates{ 0, castlingDirection * castlingMoves } };
 
-			std::cout << inBetweenSquaresNumber << '\n';
-
 			for (int i{ 1 }; i <= inBetweenSquaresNumber; ++i)
 			{
 				auto squareCoordinates{ m_coordinates + Coordinates{ 0, castlingDirection * i } };
-
-				//std::cout << board(squareCoordinates) << '\n';
 
 				if (isPiece(board(squareCoordinates)))
 				{
@@ -451,9 +442,7 @@ std::vector<Coordinates> King::getMoves(Board& board)
 
 			if (areMovingSquaresFree && !isAnyCastlingSquareAttacked)
 				moves.push_back(std::move(lastCastlingCoordinate));
-				//std::cout << "Can't castle\n";
 		}
-		//search rooks and check if they've moved. If that's not the case, you can keep adding things to castle
 	}
 
 	return moves;
@@ -520,7 +509,6 @@ char Rook::getLetter() const
 }
 
 Pawn::Pawn(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
-
 Rook::Rook(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
 Knight::Knight(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}
 Bishop::Bishop(const Coordinates& coordinates, Color color, bool hasMoved) : Piece{ coordinates, color, hasMoved } {}

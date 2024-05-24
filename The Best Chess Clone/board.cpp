@@ -81,6 +81,7 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 	const auto& piece = getPieceFromList(oldCoordinates);
 	constexpr auto isCastling{ [](Coordinates king, Coordinates move) { return abs(king.y - move.y) > 1; } };
 	bool makeRookCastlingMove{ false };
+	constexpr auto getPromotionRank{ [](Piece::Color player, Piece::Color promotion) { return player == promotion ? 0 : Constants::squaresPerLine - 1; } };
 
 	if (Piece::isPiece(newSquare))
 	{
@@ -110,6 +111,14 @@ void Board::makeMove(const Coordinates& oldCoordinates, const Coordinates& newCo
 	piece->getCoordinates() = newCoordinates;
 	newSquare = m_matrix(oldCoordinates);
 	m_matrix(oldCoordinates) = 'x';
+
+	if (piece->getType() == Piece::Type::Pawn && getPromotionRank(m_playerColor, piece->getColor()) == newCoordinates.x)
+	{
+		auto& list{ getListFromColor(piece->getColor()) };
+		char queenLetter{ piece->getColor() == Piece::Color::White ? 'q' : 'Q' };
+		erasePieceFromList(newCoordinates);
+		list.push_back(Piece::toPiece(queenLetter, newCoordinates, true));
+	}
 	
 	if (makeRookCastlingMove)
 	{
@@ -285,6 +294,7 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 	auto& rivalColorList{ getListFromColor(!color) };
 
 	constexpr auto isCastling{ [](Coordinates king, Coordinates move) { return abs(king.y - move.y) > 1; } };
+	constexpr auto getPromotionRank{ [](Piece::Color player, Piece::Color promotion) { return player == promotion ? 0 : Constants::squaresPerLine - 1; } };
 
 	for (auto& piece : PiecesSavestate(thisColorList).load())
 	{
@@ -306,7 +316,8 @@ Board::EvaluatedMove Board::getBestMoveForColor(Piece::Color color, int deepness
 			
 			if	(
 					(isEnPassant(move, piece->getColor()) && piece->getType() == Piece::Type::Pawn) || 
-					(piece->getType() == Piece::Type::King && isCastling(initialCoordinates, move))
+					(piece->getType() == Piece::Type::King && isCastling(initialCoordinates, move)) ||
+					(piece->getType() == Piece::Type::Pawn && getPromotionRank(m_playerColor, piece->getColor()) == move.x)
 				)
 			{
 				currentMatrix = m_matrix;

@@ -31,6 +31,12 @@ Board::Board(Piece::Color playerColor)
 	m_whitePieces.reserve(Constants::piecesPerColor);
 	m_blackPieces.reserve(Constants::piecesPerColor);
 	
+	if (playerColor == Piece::Color::Black)
+	{
+		std::swap(m_matrix(0, 3), m_matrix(0, 4));
+		std::swap(m_matrix(Constants::squaresPerLine - 1, 3), m_matrix(Constants::squaresPerLine - 1, 4));
+	}
+
 	for (int i = 0; i < Constants::squaresPerLine; i++)
 	{
 		for (int j = 0; j < Constants::squaresPerLine; j++)

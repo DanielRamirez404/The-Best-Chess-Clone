@@ -41,6 +41,10 @@ Chess::~Chess()
 	}
 
 	SDL_DestroyTexture(m_boardTexture);
+	SDL_DestroyTexture(m_welcomeTexture);
+	SDL_DestroyTexture(m_winTexture);
+	SDL_DestroyTexture(m_loseTexture);
+	SDL_DestroyTexture(m_drawTexture);
 	SDL_DestroyRenderer(m_renderer);
 	SDL_DestroyWindow(m_window);
 	IMG_Quit();
@@ -53,7 +57,9 @@ Chess::~Chess()
 
 void Chess::run()
 {
-	renderBoard();
+	renderPopup(m_welcomeTexture);
+
+	bool hasStarted{ false };
 
 	Coordinates oldCoordinates{};
 	bool isClickToMove{ false };
@@ -63,12 +69,18 @@ void Chess::run()
 	{
 		while (SDL_WaitEvent(&event))
 		{
-			if (event.type == SDL_QUIT)
+			if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_q))
 				return;
 
-			if (event.type == SDL_MOUSEBUTTONDOWN)
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r)
 			{
-				if (event.button.button == SDL_BUTTON_LEFT)
+				restart();
+				renderBoard();
+			}
+
+			if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+			{
+				if (hasStarted)
 				{
 					if (isClickToMove)
 					{
@@ -89,8 +101,33 @@ void Chess::run()
 							m_board.makeMove(oldCoordinates, newCoordinates);
 
 						renderBoard();
-						m_board.makeAIMove();
-						renderBoard();
+
+						if (m_board.isKingMated(!m_board.getPlayerColor()))
+						{
+							renderPopup(m_winTexture);
+							hasStarted = false;
+						}
+						else if (m_board.isStalemate(m_board.getPlayerColor()))
+						{
+							renderPopup(m_drawTexture);
+							hasStarted = false;
+						}
+						else
+						{
+							m_board.makeAIMove();
+							renderBoard();
+
+							if (m_board.isKingMated(m_board.getPlayerColor()))
+							{
+								renderPopup(m_loseTexture);
+								hasStarted = false;
+							}
+							else if (m_board.isStalemate(!m_board.getPlayerColor()))
+							{
+								renderPopup(m_drawTexture);
+								hasStarted = false;
+							}
+						}
 					}
 					else
 					{
@@ -105,7 +142,14 @@ void Chess::run()
 						}
 					}
 				}
+				else
+				{
+					restart();
+					hasStarted = true;
+					renderBoard();
+				}
 			}
+
 		}
 	}
 }
@@ -146,6 +190,18 @@ Chess::ErrorCode Chess::loadResources()
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 	
 	if (!loadTexture(m_boardTexture, "res/board.bmp"))
+		return ErrorCode::Texture_load;
+
+	if (!loadTexture(m_welcomeTexture, "res/welcome.png"))
+		return ErrorCode::Texture_load;
+
+	if (!loadTexture(m_winTexture, "res/you_win.png"))
+		return ErrorCode::Texture_load;
+
+	if (!loadTexture(m_loseTexture, "res/you_lose.png"))
+		return ErrorCode::Texture_load;
+
+	if (!loadTexture(m_drawTexture, "res/draw.png"))
 		return ErrorCode::Texture_load;
 
 	const std::map<Piece::Color, std::string_view> colorMap
@@ -209,6 +265,13 @@ bool Chess::loadTexture(SDL_Texture*& texturePtr, std::string_view path)
 	return true;
 }
 
+void Chess::restart()
+{
+	m_board = Board{ (rand() % 2 == 0) ? Piece::Color::White : Piece::Color::Black };
+	if (m_board.getPlayerColor() == Piece::Color::Black)
+		m_board.makeAIMove();
+}
+
 void Chess::renderBoard()
 {
 	SDL_RenderClear(m_renderer);
@@ -252,5 +315,13 @@ void Chess::renderBoard(std::vector<Coordinates>& attacks)
 		SDL_RenderCopy(m_renderer, pieceTexture, nullptr, &squareRect);
 	}
 
+	SDL_RenderPresent(m_renderer);
+}
+
+void Chess::renderPopup(SDL_Texture*& popup)
+{
+	SDL_RenderClear(m_renderer);
+	SDL_Rect fullBoardRect{ 0, 0, Constants::windowSize, Constants::windowSize };
+	SDL_RenderCopy(m_renderer, popup, nullptr, &fullBoardRect);
 	SDL_RenderPresent(m_renderer);
 }

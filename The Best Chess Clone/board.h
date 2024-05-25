@@ -30,6 +30,7 @@ class Board
 		
 		bool isKingMated(Piece::Color color);
 		bool isKingChecked(Piece::Color color) const;
+		bool isStalemate(Piece::Color colorToPlay);
 
 		void makeAIMove();
 		int getColorEval(Piece::Color color);

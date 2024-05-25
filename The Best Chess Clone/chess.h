@@ -39,6 +39,10 @@ class Chess
 		SDL_Window* m_window{ nullptr };
 		SDL_Renderer* m_renderer{ nullptr };
 		SDL_Texture* m_boardTexture{ nullptr };
+		SDL_Texture* m_welcomeTexture{ nullptr };
+		SDL_Texture* m_winTexture{ nullptr };
+		SDL_Texture* m_loseTexture{ nullptr };
+		SDL_Texture* m_drawTexture{ nullptr };
 		std::map<Piece::Traits, SDL_Texture*> m_pieceTextureMap{};
 		
 		ErrorCode m_errorCode{};
@@ -51,6 +55,8 @@ class Chess
 		ErrorCode init();
 		ErrorCode loadResources();
 		bool loadTexture(SDL_Texture*& texturePtr, std::string_view path);
+		void restart();
 		void renderBoard();
 		void renderBoard(std::vector<Coordinates>& attacks);
+		void renderPopup(SDL_Texture*& popup);
 };

@@ -319,6 +319,18 @@ bool Board::isKingMated(Piece::Color color)
 	return false;
 }
 
+bool Board::isStalemate(Piece::Color colorToPlay)
+{
+	if (isKingChecked(colorToPlay))
+		return false;
+
+	for (const auto& piece : getListFromColor(colorToPlay))
+		for (const auto& move : piece->getMoves(*this))
+			return false;
+
+	return true;
+}
+
 void Board::makeAIMove()
 {
 	constexpr int defaultDeepness{ 1 };

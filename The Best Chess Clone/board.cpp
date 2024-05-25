@@ -141,17 +141,56 @@ bool Board::isEnPassant(const Coordinates& coordinates, Piece::Color color) cons
 
 bool Board::isLegalMove(const Coordinates& oldCoordinates, const Coordinates& newCoordinates) const
 {
+	//todo: refactore and make it functional for en passants 
+
 	char& currentPosition{ m_matrix(oldCoordinates) };
 	char& attackedPosition{ m_matrix(newCoordinates) };
 	const char currentLetter{ m_matrix(oldCoordinates) };
 	const char attackedLetter{ m_matrix(newCoordinates) };
 
+	const Piece::Color pieceColor{ Piece::getColor(currentLetter) };
+
+	const auto& thisColorList{ getListFromColor(pieceColor) };
+	const auto& rivalColorList{ getListFromColor(!pieceColor) };
+
 	currentPosition = 'x';
 	attackedPosition = currentLetter;
 
-	const bool isKing{ Piece::getType(currentLetter) == Piece::Type::King };
-	const bool isLegal{ isKing ? !isAttacked(newCoordinates) : !isKingChecked(Piece::getColor(currentLetter)) };
+	std::vector<Piece*> attackingPieces{};
+	attackingPieces.reserve(rivalColorList.size());
+	
+	for (const auto& piece : rivalColorList)
+		if (piece->getCoordinates() != newCoordinates)
+			attackingPieces.push_back(piece.get());
 
+	const bool isKing{ Piece::getType(currentLetter) == Piece::Type::King };
+
+	Coordinates kingCoordinates{};
+
+	if (isKing) 
+	{
+		kingCoordinates = newCoordinates;
+	}
+	else
+	{
+		for (const auto& piece : thisColorList)
+			if (piece->getType() == Piece::Type::King)
+			{
+				kingCoordinates = piece->getCoordinates();
+				break;
+			}
+	}
+
+	bool isLegal{ true };
+
+	for (const auto& piece : attackingPieces)
+		for (const auto& attack : piece->getAttacks(*this))
+			if (attack == kingCoordinates)
+			{
+				isLegal = false;
+				break;
+			}
+			
 	currentPosition = currentLetter;
 	attackedPosition = attackedLetter;
 

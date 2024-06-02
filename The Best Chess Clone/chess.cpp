@@ -30,8 +30,6 @@ Chess::Chess()
 		m_errorCode = loadResources();
 }
 
-#include <iostream>
-
 Chess::~Chess()
 {
 	for (auto& pair : m_pieceTextureMap)
@@ -74,7 +72,7 @@ void Chess::run()
 
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_r)
 			{
-				restart();
+				restart(); 
 				renderBoard();
 			}
 

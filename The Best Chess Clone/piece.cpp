@@ -368,7 +368,12 @@ std::vector<Coordinates> Rook::getMoves(Board& board)
 
 std::vector<Coordinates> Knight::getMoves(Board& board)
 {
-	return (board.isKingChecked(m_color) || isPinned(board)) ? std::vector<Coordinates>{} : getAttacks(board);
+	std::vector<Coordinates> moves{ getAttacks(board) };
+
+	if (board.isKingChecked(m_color) || isPinned(board))
+		std::erase_if(moves, [&](const Coordinates& move) { return !board.isLegalMove(m_coordinates, move); });
+
+	return moves;
 }
 
 std::vector<Coordinates> Bishop::getMoves(Board& board)
